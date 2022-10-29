@@ -1,19 +1,15 @@
 // Start with RayTracing in One Weekend.
 
-#include "Ray.h"
-#include "Color.h"
 #include "Output.h"
+#include "Camera.h"
 
 int main() {
 
-    constexpr bool PPM{ false };
-    constexpr bool QOI{ true };
-    constexpr int width = 500, height = 500;
-    std::vector<std::vector<Color>> pixels(height, std::vector<Color>(width));
+    Camera camera{ 1000, 800, 3.0, 2.0 };
     
-
     // Rendering loop
     std::cout << "Rendering start." << std::endl;
+    std::vector<std::vector<Color>> pixels(camera.height, std::vector<Color>(camera.width));
     for (int row{ 0 }; row < height; ++row) {
         std::cout << "\rRendering ROW " << row + 1 << " of " << height << " .";
         for (int col{ 0 }; col < width; ++col) {
@@ -25,8 +21,7 @@ int main() {
     }
     std::cout << "Rendering finished" << std::endl;
     
-    outputPic("render_output / image.ppm", width, height, PIC_FORMAT::QOI, pixels);
-    
-
+    // Output
+    outputPic("render_output/image.ppm", width, height, PIC_FORMAT::QOI, pixels);
     return 0;
 }

@@ -8,7 +8,7 @@ struct Vec3 {
     double &x{ v[0] }, &y{ v[1] }, &z{ v[2] };
 
     Vec3() = default;
-    Vec3(double x, double y, double z) : v({x, y, z}) {};
+    Vec3(double _x, double _y, double _z) : v({_x, _y, _z}) {};
     
     Vec3 operator+() const { return *this; };
     Vec3 operator-() const { return Vec3(-x, -y, -z); };
@@ -24,6 +24,7 @@ struct Vec3 {
     Vec3 &operator*=(const double &n) { x *= n; y *= n; z *= n; return *this; }
     Vec3 &operator/=(const double &n) { x /= n; y /= n; z /= n; return *this; }
 
+    Vec3 &operator=(const Vec3 &vec) { x = vec.x; y = vec.y; z = vec.z; return *this; }
     double &operator[](int i) { return v[i]; }
     Vec3 operator^(const Vec3 &vec) {
         // Cross
@@ -32,7 +33,8 @@ struct Vec3 {
     friend std::ostream &operator<<(std::ostream &os, const Vec3 &vec);
 
     double length() const { return std::sqrt(x * x + y * y + z * z); }
-    Vec3 &make_unit() { *this *= 1.0 / length(); return *this; }
+    Vec3 &makeUnit() { *this *= 1.0 / length(); return *this; }
+    Vec3 getUnit() const { return *this / length(); }
 };
 
 inline std::ostream &operator<<(std::ostream &os, const Vec3 &vec) {
