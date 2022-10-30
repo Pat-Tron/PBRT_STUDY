@@ -7,7 +7,7 @@
 #include "Output.h"
 
 void outputPic(
-    const char *filename,
+    const std::string &filename,
     const int &width,
     const int &height,
     const PIC_FORMAT &f,
@@ -16,7 +16,7 @@ void outputPic(
     if (f == PIC_FORMAT::PPM) {
         std::cout << "Start writing PPM file." << std::endl;
         std::ofstream picOut;
-        picOut.open(filename, 'w');
+        picOut.open(filename + ".ppm", 'w');
         picOut << "P3\n" << width << " " << height << "\n255\n";
         for (int row{ 0 }; row < height; ++row) {
             std::cout << "\rWriting ROW " << row + 1 << " of " << height << " .";
@@ -47,7 +47,7 @@ void outputPic(
         desc.height = height;
         desc.channels = 3;
         desc.colorspace = QOI_SRGB;
-        qoi_write(filename, rgb_pixels, &desc);
+        qoi_write((filename + ".qoi").c_str(), rgb_pixels, &desc);
         delete[]rgb_pixels;
         std::cout << "QOI output finished." << std::endl;
     }

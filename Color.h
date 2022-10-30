@@ -1,5 +1,6 @@
 #pragma once
 #include <iostream>
+#include "Vec3.h"
 
 struct Color {
     double R{ 0.0 }, G{ 0.0 }, B{ 0.0 };
@@ -7,6 +8,7 @@ struct Color {
 
     Color() = default;
     Color(double r, double g, double b) : R(r), G(g), B(b) {}
+    Color(const Vec3 &vec) : R(vec.x), G(vec.y), B(vec.z) {}
     Color operator+(const Color &c) const { return Color(R + c.R, G + c.G, B + c.B); }
     Color operator-(const Color &c) const { return Color(R - c.R, G - c.G, B - c.B); }
     Color operator*(const Color &c) const { return Color(R * c.R, G * c.G, B * c.B); }
@@ -15,6 +17,8 @@ struct Color {
     Color &operator-=(const Color &c) { R -= c.R; G -= c.G; B -= c.B; return *this; }
     Color &operator*=(const Color &c) { R *= c.R; G *= c.G; B *= c.B; return *this; }
     Color &operator/=(const Color &c) { R /= c.R; G /= c.G; B /= c.B; return *this; }
+
+    Color &operator=(const Vec3 &vec) { R = vec.x; G = vec.y; B = vec.z; return *this; }
 
     // Gamma encoding to sRGB
     //int d2i(const double &channel) const {
