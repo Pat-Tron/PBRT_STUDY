@@ -10,12 +10,12 @@ struct Camera {
     int width{ 500 };
     int height{ 500 };
     double focal{ 5.0 };
-
+    int antialiasing{ 2 };
 
     Camera() = default;
     Camera(int w, int h, double fs, double xs);
 
-    Ray getRay(int x_index, int y_index);
+    Ray getRay(double u, double v);
 
 private:
     double pixelSize;

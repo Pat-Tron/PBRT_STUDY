@@ -11,9 +11,9 @@ Camera::Camera(int w, int h, double fs, double xs) :
     position.z = -focal;
 }
 
-Ray Camera::getRay(int x_index, int y_index) {
+Ray Camera::getRay(double u, double v) {
     // Indices are counted row by row, left to right, top to bottom.
-    y_index = height - 1 - y_index;
-    Vec3 target = leftDownCorner + Vec3(x_index * pixelSize, y_index * pixelSize, 0.0);
+    v = 1.0 - v;
+    Vec3 target = leftDownCorner + Vec3(xscale * u, yscale * v, 0.0);
     return Ray(position, target - position);
 }

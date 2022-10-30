@@ -14,10 +14,14 @@ struct Color {
     Color operator-(const Color &c) const { return Color(R - c.R, G - c.G, B - c.B); }
     Color operator*(const Color &c) const { return Color(R * c.R, G * c.G, B * c.B); }
     Color operator/(const Color &c) const { return Color(R / c.R, G / c.G, B / c.B); }
+    Color operator*(const double &n) const { return Color(R * n, G * n, B * n); }
+    Color operator/(const double &n) const { return Color(R / n, G / n, B / n); }
     Color &operator+=(const Color &c) { R += c.R; G += c.G; B += c.B; return *this; }
     Color &operator-=(const Color &c) { R -= c.R; G -= c.G; B -= c.B; return *this; }
     Color &operator*=(const Color &c) { R *= c.R; G *= c.G; B *= c.B; return *this; }
     Color &operator/=(const Color &c) { R /= c.R; G /= c.G; B /= c.B; return *this; }
+    Color &operator*=(const double &n) { R *= n; G *= n; B *= n; return *this; }
+    Color &operator/=(const double &n) { R /= n; G /= n; B /= n; return *this; }
 
     Color &operator=(const Vec3 &vec) { R = vec.x; G = vec.y; B = vec.z; return *this; }
 
