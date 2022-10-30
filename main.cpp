@@ -4,11 +4,51 @@
 #include "Camera.h"
 #include "Shape.h"
 
+#include <random>
+std::random_device rd;
+std::default_random_engine generator(rd());
+std::uniform_real_distribution<double> distr(0.0, 1.0);
+inline double rand01() { return distr(generator); }
+constexpr double PI{ 3.141592653589793238462643 };
+
+constexpr int MAX_DEPTH{ 5 };
+
+Vec3 randomSampleInHemiSphere(Vec3 normal) {
+    // ∞Î«Ú√Êæ˘‘»»ˆµ„ https://zhuanlan.zhihu.com/p/340929847
+    float phi = rand01() * 2.0 * PI;
+    float theta = acos(1.0 - rand01());
+    Vec3 pos = Vec3(sin(theta) * cos(phi), cos(theta), sin(theta) * sin(phi));
+
+    // quaternion rotation
+    Vec3 up{ 0.0, 1.0, 0.0 };
+    double angle{ acos(normal * up) };
+    Vec3 axis{ (up ^ normal).normalized() };
+    double c{ cos(angle) };
+    return pos * c + axis * (1 - c) * (axis * pos) + (axis ^ pos) * sin(angle);
+}
+
+Color render(const Ray &ray, const Primitives &prims) {
+    static HitRec rec;
+    static int depth{ 0 };
+    if (prims.hit(ray, 0.1, 1e10, rec)) {
+        if (depth < MAX_DEPTH) {
+            Vec3 newDir{ randomSampleInHemiSphere(rec.normal) };
+            ++depth;
+            return render(Ray(rec.p, newDir), prims) * rec.albedo;
+        } else {
+            depth = 0;
+            return rec.albedo;
+        }
+    } else {
+        depth = 0;
+        return background(ray);
+    }
+}
 
 int main() {
 
-    Camera camera{ 500, 300, 2, 2.0 };
-    camera.antialiasing = 5;
+    Camera camera{ 1500, 1000, 2, 2.0 };
+    camera.antialiasing = 1;
 
     Primitives primitives{ std::vector<std::shared_ptr<const Primitive>>{
         std::make_shared<const Sphere>(Sphere(1.0,   Vec3(0.0, 0.0, 6.0), 0xff2222)),  // small
@@ -29,12 +69,7 @@ int main() {
             
             for (int ui{ 0 }; ui < camera.antialiasing; ++ui) {
                 for (int vi{ 0 }; vi < camera.antialiasing; ++vi) {
-                    Ray ray{ camera.getRay(u + ui * uStep, v + vi * vStep) };
-                    HitRec rec;
-                    Color result;
-                    if (primitives.hit(ray, 0.1, 1e10, rec)) result = rec.normal * 0.5 + Vec3(0.5, 0.5, 0.5);
-                    else result = background(ray);
-                    pixels[row][col] += result;
+                    pixels[row][col] += render(camera.getRay(u + ui * uStep, v + vi * vStep), primitives);
                 }
             }
             

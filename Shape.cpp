@@ -33,19 +33,15 @@ bool Sphere::hit(const Ray &ray, double tMin, double tMax, HitRec &rec) const {
     if (discriminant < 0.0) return false;
     else {
         double root{ (-b - sqrt(discriminant)) / a };
-        if (root < tMax && root > tMin) {
-            rec.t = root;
-            rec.p = ray.pointAtT(root);
-            rec.normal = (rec.p - center) / radius;
-            return true;
-        }
+        if (root > tMax || root < tMin) return false;
         root = (-b + sqrt(discriminant)) / a;
-        if (root < tMax && root > tMin) {
-            rec.t = root;
-            rec.p = ray.pointAtT(root);
-            rec.normal = (rec.p - center) / radius;
-            return true;
-        } else return false;
+        if (root > tMax && root < tMin) return false;
+
+        rec.t = root;
+        rec.p = ray.pointAtT(root);
+        rec.normal = (rec.p - center) / radius;
+        rec.albedo = albedo;
+        return true;
     }
 }
 

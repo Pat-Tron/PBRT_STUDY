@@ -34,8 +34,8 @@ struct Vec3 {
     friend std::ostream &operator<<(std::ostream &os, const Vec3 &vec);
 
     double length() const { return std::sqrt(x * x + y * y + z * z); }
-    Vec3 &makeUnit() { *this *= 1.0 / length(); return *this; }
-    Vec3 getUnit() const { return *this / length();}
+    Vec3 &normalize() { *this *= 1.0 / length(); return *this; }
+    Vec3 normalized() const { return *this / length();}
 };
 
 inline std::ostream &operator<<(std::ostream &os, const Vec3 &vec) {

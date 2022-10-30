@@ -6,7 +6,7 @@
 #include <vector>
 #include <memory>
 
-struct HitRec { double t{ 0.0 }; Vec3 p; Vec3 normal; };
+struct HitRec { double t{ 0.0 }; Vec3 p; Vec3 normal; Color albedo; };
 struct Primitive {
     virtual bool hit(const Ray &ray, double tMin, double tMax, HitRec &rec) const = 0;
 };
@@ -29,5 +29,6 @@ struct Sphere : public Primitive {
 };
 
 inline Color background(const Ray &ray) {
-    return ray.direction.getUnit() * 0.5 + Vec3(0.5, 0.5, 0.5);
+    //return ray.direction.normalized() * 0.5 + Vec3(0.5, 0.5, 0.5);
+    return Color(0xFFFFFF);
 }
