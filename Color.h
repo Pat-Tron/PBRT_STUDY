@@ -7,6 +7,7 @@ struct Color {
     static constexpr double gammaCorrection{ 1.0 / 2.2 };
 
     Color() = default;
+    Color(int c) : R((c >> 16) / 255.99), G((c & 0x00FF00 >> 8) / 255.99), B((c & 0x0000FF) / 255.99) {}
     Color(double r, double g, double b) : R(r), G(g), B(b) {}
     Color(const Vec3 &vec) : R(vec.x), G(vec.y), B(vec.z) {}
     Color operator+(const Color &c) const { return Color(R + c.R, G + c.G, B + c.B); }

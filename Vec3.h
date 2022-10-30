@@ -9,6 +9,7 @@ struct Vec3 {
 
     Vec3() = default;
     Vec3(double _x, double _y, double _z) : v({_x, _y, _z}) {};
+    Vec3(const Vec3 &vec) : v(vec.v) {};
     
     Vec3 operator+() const { return *this; };
     Vec3 operator-() const { return Vec3(-x, -y, -z); };
@@ -34,7 +35,7 @@ struct Vec3 {
 
     double length() const { return std::sqrt(x * x + y * y + z * z); }
     Vec3 &makeUnit() { *this *= 1.0 / length(); return *this; }
-    Vec3 getUnit() const { return *this / length(); }
+    Vec3 getUnit() const { return *this / length();}
 };
 
 inline std::ostream &operator<<(std::ostream &os, const Vec3 &vec) {
