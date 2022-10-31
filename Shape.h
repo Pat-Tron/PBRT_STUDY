@@ -29,6 +29,7 @@ struct Sphere : public Primitive {
 };
 
 inline Color background(const Ray &ray) {
-    //return ray.direction.normalized() * 0.5 + Vec3(0.5, 0.5, 0.5);
-    return Color(0xFFFFFF);
+    //return Color(0x000000);
+    double c{ ray.direction.normalized().y * 0.5 + 0.5};
+    return c * Color(0.8, 0.8, 1.0) + (1.0 - c) * Color(0xFFFFFF);
 }

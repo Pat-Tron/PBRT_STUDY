@@ -12,6 +12,7 @@ inline double rand01() { return distr(generator); }
 constexpr double PI{ 3.141592653589793238462643 };
 
 constexpr int MAX_DEPTH{ 5 };
+constexpr double REFLECTANCE{ 1.0 };
 
 Vec3 randomSampleInHemiSphere(Vec3 normal) {
     // ∞Î«Ú√Êæ˘‘»»ˆµ„ https://zhuanlan.zhihu.com/p/340929847
@@ -28,13 +29,13 @@ Vec3 randomSampleInHemiSphere(Vec3 normal) {
 }
 
 Color render(const Ray &ray, const Primitives &prims) {
-    static HitRec rec;
+    HitRec rec;
     static int depth{ 0 };
-    if (prims.hit(ray, 0.1, 1e10, rec)) {
+    if (prims.hit(ray, 0.0000001, 1e10, rec)) {
         if (depth < MAX_DEPTH) {
             Vec3 newDir{ randomSampleInHemiSphere(rec.normal) };
             ++depth;
-            return render(Ray(rec.p, newDir), prims) * rec.albedo;
+            return render(Ray(rec.p, newDir), prims) * rec.albedo * REFLECTANCE;
         } else {
             depth = 0;
             return rec.albedo;
@@ -47,12 +48,14 @@ Color render(const Ray &ray, const Primitives &prims) {
 
 int main() {
 
-    Camera camera{ 1500, 1000, 2, 2.0 };
-    camera.antialiasing = 1;
+    Camera camera{ 1000, 700, 2, 2.0 };
+    camera.antialiasing = 10;
 
     Primitives primitives{ std::vector<std::shared_ptr<const Primitive>>{
-        std::make_shared<const Sphere>(Sphere(1.0,   Vec3(0.0, 0.0, 6.0), 0xff2222)),  // small
-        std::make_shared<const Sphere>(Sphere(100.0, Vec3(0.0, -101.0, 6.0), 0x22dd22)),  // ground
+        std::make_shared<const Sphere>(Sphere(50.0, Vec3(0.0, -51.0, 6.0),  0x5E5959)),  // ground
+        std::make_shared<const Sphere>(Sphere(1.0,  Vec3(-1.5, -0.04, 4.5), 0xF72349)),  // l small
+        std::make_shared<const Sphere>(Sphere(1.0,  Vec3(0.0, 0.0, 6.0),    0xF6DC85)),  // m small
+        std::make_shared<const Sphere>(Sphere(1.0,  Vec3(1.5, -0.04, 7.5),  0x50BF94)),  // r small
     } };
     
     // Rendering loop

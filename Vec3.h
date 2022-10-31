@@ -35,7 +35,7 @@ struct Vec3 {
 
     double length() const { return std::sqrt(x * x + y * y + z * z); }
     Vec3 &normalize() { *this *= 1.0 / length(); return *this; }
-    Vec3 normalized() const { return *this / length();}
+    Vec3 normalized() const { return *this * (1.0 / length());}
 };
 
 inline std::ostream &operator<<(std::ostream &os, const Vec3 &vec) {

@@ -8,8 +8,8 @@ bool Primitives::hit(const Ray &ray, double tMin, double tMax, HitRec &rec) cons
     for (size_t i{ 0 }; i < primAmounts; ++i) {
         if (prims[i]->hit(ray, tMin, closestSoFar, tempRec)) {
             hitOrNot = true;
-            closestSoFar = rec.t;
             rec = tempRec;
+            if(rec.t < closestSoFar) closestSoFar = rec.t;
         }
     }
     return hitOrNot;
@@ -33,10 +33,11 @@ bool Sphere::hit(const Ray &ray, double tMin, double tMax, HitRec &rec) const {
     if (discriminant < 0.0) return false;
     else {
         double root{ (-b - sqrt(discriminant)) / a };
-        if (root > tMax || root < tMin) return false;
-        root = (-b + sqrt(discriminant)) / a;
-        if (root > tMax && root < tMin) return false;
-
+        if (root > tMax) return false;
+        else if (root < tMin) {
+            root = (-b + sqrt(discriminant)) / a;
+            if (root > tMax || root < tMin) return false;
+        }
         rec.t = root;
         rec.p = ray.pointAtT(root);
         rec.normal = (rec.p - center) / radius;
