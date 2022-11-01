@@ -32,6 +32,7 @@ struct Vec3 {
         return Vec3(y * vec.z - z * vec.y, z * vec.x - x * vec.z, x * vec.y - y * vec.x);
     }
     friend std::ostream &operator<<(std::ostream &os, const Vec3 &vec);
+    friend Vec3 operator*(const double &n, const Vec3 &vec);
 
     double length() const { return std::sqrt(x * x + y * y + z * z); }
     Vec3 &normalize() { *this *= 1.0 / length(); return *this; }
@@ -42,3 +43,5 @@ inline std::ostream &operator<<(std::ostream &os, const Vec3 &vec) {
     os << vec.x << ' ' << vec.y << ' ' << vec.z;
     return os;
 }
+
+inline Vec3 operator*(const double &n, const Vec3 &vec) { return vec * n; }

@@ -1,12 +1,11 @@
 #pragma once
 
 #include "Ray.h"
-#include "Color.h"
+#include "Material.h"
 
 #include <vector>
 #include <memory>
 
-struct HitRec { double t{ 0.0 }; Vec3 p; Vec3 normal; Color albedo; };
 struct Primitive {
     virtual bool hit(const Ray &ray, double tMin, double tMax, HitRec &rec) const = 0;
 };
@@ -22,9 +21,9 @@ struct Primitives : public Primitive {
 struct Sphere : public Primitive {
     double radius{ 1.0 };
     Vec3 center;
-    Color albedo;
+    Material *mat;
     Sphere() = default;
-    Sphere(double r, Vec3 c, int al) : radius(r), center(c), albedo(Color(al)) {}
+    Sphere(double r, Vec3 c, Material *m) : radius(r), center(c), mat(m) {}
     bool hit(const Ray &ray, double tMin, double tMax, HitRec &rec) const override;
 };
 

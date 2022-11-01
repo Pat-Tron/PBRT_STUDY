@@ -41,7 +41,7 @@ bool Sphere::hit(const Ray &ray, double tMin, double tMax, HitRec &rec) const {
         rec.t = root;
         rec.p = ray.pointAtT(root);
         rec.normal = (rec.p - center) / radius;
-        rec.albedo = albedo;
+        rec.mat = mat;
         return true;
     }
 }
