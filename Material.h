@@ -22,6 +22,7 @@ struct Material {
     double reflectance{ 1.0 };
     Material() = default;
     Material(const Color &a = 0xFFFFFF) : albedo(a) {}
+    Vec3 reflect(const Vec3 &in, const Vec3 &normal) const { return in - 2 * (in * normal) * normal; }
     Vec3 randomSampleInHemiSphere(const Vec3 &normal, bool uniform = true, double range = 1.0) const;
     virtual Ray scatter(const Ray &rayIn, const HitRec &rec) const = 0;
 };
@@ -41,7 +42,6 @@ struct Metal : public Material {
     Metal() = default;
     Metal(const Color &a, double f = 0.0) : Material(a), fuzz(f) {}
 
-    Vec3 reflect(const Vec3 &in, const Vec3 &normal) const { return in - 2 * (in * normal) * normal; }
     virtual Ray scatter(const Ray &rayIn, const HitRec &rec) const override {
         Vec3 reflected{ reflect(rayIn.direction.normalized(), rec.normal)};
         if (fuzz == 0.0) return Ray(rec.p, reflected);
@@ -50,8 +50,19 @@ struct Metal : public Material {
 };
 
 struct Dielectric : public Material {
-    double IOR{ 1.44 };  // GLASS, Index of Refraction
-
+    // GLASS, Index of Refraction
+    double IOR{ 1.44 }, IORR{ 1.0 / 1.44 };  // Reciprocal of IOR
     Dielectric() = default;
-    Dielectric(const Color &a, double ior) : Material(a), IOR(ior) {}
+    Dielectric(const Color &a, double ior = 1.44) :
+        Material(a), IOR(ior), IORR(1.0 / ior) {
+        criticalAngle = asin(1.0 / IOR);
+    }
+    virtual Ray scatter(const Ray &rayIn, const HitRec &rec) const override {
+        return Ray(rec.p, refract(rayIn.direction.normalized(), rec.normal));
+    }
+
+private:
+    double criticalAngle{ asin(1.0 / 1.44) };  // ¡ŸΩÁΩ«
+    double schlick(double cosine) const;
+    Vec3 refract(const Vec3 &dirIn, const Vec3 &normal) const;
 };

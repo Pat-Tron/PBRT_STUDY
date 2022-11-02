@@ -24,20 +24,22 @@ Color render(const Ray &ray, const Primitives &prims) {
 }
 
 int main() {
+    //Camera camera{ 2000, 1500, 2, 2.0 };
     Camera camera{ 1000, 750, 2, 2.0 };
     camera.antialiasing = 1;
 
-    Lambertian diffuseGray(0x5E5959);
-    Lambertian diffuseYellow(0xF6DC85);
+    Lambertian diffuseGround(0x6996BA);
+    Lambertian diffuseYellow(0xffe815);
     Metal shinyRed(0xF72349);
     Metal matteGreen(0x50BF94, 0.2);
+    Dielectric glass(0xFFFFFF, 1.15); // 0x2222DD
 
     Primitives primitives{ std::vector<std::shared_ptr<const Primitive>>{
-        std::make_shared<const Sphere>(Sphere(50.0, Vec3(0.0, -51.0, 6.0),  &diffuseGray)),  // ground
+        std::make_shared<const Sphere>(Sphere(50.0, Vec3(0.0, -51.0, 6.0),  &diffuseGround)),  // ground
         std::make_shared<const Sphere>(Sphere(1.0,  Vec3(-1.5, -0.04, 4.5), &diffuseYellow)),  // l small
         std::make_shared<const Sphere>(Sphere(1.0,  Vec3(0.0, 0.0, 6.0),    &shinyRed)),  // m small
         std::make_shared<const Sphere>(Sphere(1.0,  Vec3(1.5, -0.04, 7.5),  &matteGreen)),  // r small
-        std::make_shared<const Sphere>(Sphere(0.5,  Vec3(0.7, -0.52, 4.0),  &diffuseGray)),  // front small
+        std::make_shared<const Sphere>(Sphere(0.5,  Vec3(0.7, -0.52, 4.5),  &glass)),  // front small
     } };
 
     // Rendering loop
@@ -64,6 +66,6 @@ int main() {
     std::cout << "Rendering finished" << std::endl;
     
     // Output
-    outputPic("render_output/image", camera.width, camera.height, PIC_FORMAT::QOI, pixels);
+    outputPic("image", camera.width, camera.height, PIC_FORMAT::QOI, pixels);
     return 0;
 }
