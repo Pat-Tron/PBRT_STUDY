@@ -1,20 +1,41 @@
 #include "Camera.h"
+#include "utility.h"
 
 void Camera::initialization() {
-    filmHeight = filmWidth * resHeight / resWidth;
     orientation.normalize();
-    Vec3 filmCenter = position + orientation * focal;
     Vec3 globalUp{ 0.0, 1.0, 0.0 };
     right = (orientation ^ globalUp).normalized();
     up = (right ^ orientation).normalized();
+    Vec3 filmCenter;
+    if (aperture == 0.0) {
+        filmHeight = filmWidth * resHeight / resWidth;
+        filmCenter = position + orientation * focal;
+    } else {
+        lensRadius = aperture * 0.5;
+        filmWidth *= distanceToFocus / focal;
+        filmHeight = filmWidth * resHeight / resWidth;
+        filmCenter = position + orientation * distanceToFocus;
+    }
     leftDownCorner = filmCenter - right * filmWidth * 0.5 - up * filmHeight * 0.5;
+    
 }
+
+Vec3 Camera::sampleInCircle() {
+    double radius{ rand01() };
+    double angle{ rand01() * 2.0 * PI };
+    return (right * cos(angle) + up * sin(angle)) * radius * lensRadius;
+}
+
 
 Ray Camera::getRay(double u, double v) {
     // Indices are counted row by row, left to right, top to bottom.
     v = 1.0 - v;
     Vec3 target = leftDownCorner + u * filmWidth * right + v * filmHeight * up;
-    return Ray(position, target - position);
+    if(aperture == 0.0) return Ray(position, target - position);
+    else {
+        Vec3 newP{ position + sampleInCircle() };
+        return Ray(newP, target - newP);
+    }
 }
 
 Color Camera::render(const Ray &ray, const Primitives &prims) const {

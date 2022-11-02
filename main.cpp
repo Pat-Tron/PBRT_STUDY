@@ -7,10 +7,12 @@
 int main() {
     Camera camera(P1K, 0.5);
     camera.position = Vec3(20, 4.5, -2);
-    camera.faceAt(Vec3(0.0, 0.8, 0.0));
     camera.focal = 3.0 ;
     camera.antialiasing = 1 ;
     camera.maxDepth = 10;
+    camera.aperture = 0.2;
+    camera.defocusScale = 0.9;
+    camera.faceAt(Vec3(0.0, 0.8, 0.0));
 
     Lambertian diffuseGround(0x5654f7);
     Lambertian diffuseYellow(0xffe815);

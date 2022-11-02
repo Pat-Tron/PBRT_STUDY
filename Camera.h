@@ -21,25 +21,37 @@ struct Camera {
     Vec3 position{ 0.0, 0.0, 0.0 };    
     int resWidth{ 500 };
     int resHeight{ 500 };
+
     double focal{ 5.0 };
     int antialiasing{ 2 };
     int maxDepth{ 5 };
-    double filmWidth{ 1.0 };
+    double aperture{ 0.0 };  // diameter
+    double defocusScale{ 1.0 };
+
+
     std::vector<std::vector<Color>> pixels;
 
     Camera() = default;
     Camera(int w, int h) : resWidth(w), resHeight(h),
         pixels(resHeight, std::vector<Color>(resWidth)) {}
     Camera(PRESET prst, double zoom = 1.0) :
-        resWidth(presets[prst].width * zoom), resHeight(presets[prst].height * zoom),
+        resWidth(static_cast<int>(presets[prst].width * zoom)),
+        resHeight(static_cast<int>(presets[prst].height * zoom)),
         pixels(resHeight, std::vector<Color>(resWidth)) {}
-    void faceAt(const Vec3 &target) { orientation = target - position; }
+    void faceAt(const Vec3 &target) {
+        orientation = target - position;
+        distanceToFocus = orientation.length() * defocusScale;
+    }
     void randerLoop(const Primitives &prims);
 
 private:
+    double filmWidth{ 1.0 };
     double filmHeight{ 0.0 };
+    double distanceToFocus{ 0.0 };
+    double lensRadius{ 0.0 };
     Vec3 leftDownCorner, right, up;
     void initialization();
+    Vec3 sampleInCircle();
     Color render(const Ray &ray, const Primitives &prims) const;
     Ray getRay(double u, double v);
 };
