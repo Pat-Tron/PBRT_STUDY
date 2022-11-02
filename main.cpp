@@ -4,68 +4,39 @@
 #include "Camera.h"
 #include "Shape.h"
 
-constexpr int MAX_DEPTH{ 5 };
-
-Color render(const Ray &ray, const Primitives &prims) {
-    HitRec rec;
-    static int depth{ 0 };
-    if (prims.hit(ray, 0.0000001, 1e10, rec)) {
-        if (depth < MAX_DEPTH) {
-            ++depth;
-            return render(rec.mat->scatter(ray, rec), prims) * rec.mat->albedo * rec.mat->reflectance;
-        } else {
-            depth = 0;
-            return rec.mat->albedo;
-        }
-    } else {
-        depth = 0;
-        return background(ray);
-    }
-}
-
 int main() {
-    //Camera camera{ 2000, 1500, 2, 2.0 };
-    Camera camera{ 1000, 750, 2, 2.0 };
-    camera.antialiasing = 1;
+    Camera camera(P1K, 0.5);
+    camera.position = Vec3(20, 4.5, -2);
+    camera.faceAt(Vec3(0.0, 0.8, 0.0));
+    camera.focal = 3.0 ;
+    camera.antialiasing = 1 ;
+    camera.maxDepth = 10;
 
-    Lambertian diffuseGround(0x6996BA);
+    Lambertian diffuseGround(0x5654f7);
     Lambertian diffuseYellow(0xffe815);
     Metal shinyRed(0xF72349);
-    Metal matteGreen(0x50BF94, 0.2);
-    Dielectric glass(0xFFFFFF, 1.15); // 0x2222DD
+    Metal matteGreen(0x50BF94, 0.1);
+    Dielectric glass(0xffffFF, 1.4); // 0x2222DD
 
+    double squareSize{ 7.0 };
+    Vec3 corners[4]{
+        Vec3(squareSize * 0.5, 0.0, squareSize * 0.5),
+        Vec3(-squareSize * 0.5, 0.0, squareSize * 0.5),
+        Vec3(-squareSize * 0.5, 0.0, -squareSize * 0.5),
+        Vec3(squareSize * 0.5, 0.0, -squareSize * 0.5)
+    };
     Primitives primitives{ std::vector<std::shared_ptr<const Primitive>>{
-        std::make_shared<const Sphere>(Sphere(50.0, Vec3(0.0, -51.0, 6.0),  &diffuseGround)),  // ground
-        std::make_shared<const Sphere>(Sphere(1.0,  Vec3(-1.5, -0.04, 4.5), &diffuseYellow)),  // l small
-        std::make_shared<const Sphere>(Sphere(1.0,  Vec3(0.0, 0.0, 6.0),    &shinyRed)),  // m small
-        std::make_shared<const Sphere>(Sphere(1.0,  Vec3(1.5, -0.04, 7.5),  &matteGreen)),  // r small
-        std::make_shared<const Sphere>(Sphere(0.5,  Vec3(0.7, -0.52, 4.5),  &glass)),  // front small
+        std::make_shared<Triangle>(Triangle(corners[0], corners[3], corners[1], &diffuseGround)), // ground
+        std::make_shared<Triangle>(Triangle(corners[3], corners[2], corners[1], &diffuseGround)), // ground
+        std::make_shared<Sphere>(Sphere(1.0,  Vec3(-1.5, 1, 1.5), &diffuseYellow)),  // l small
+        std::make_shared<Sphere>(Sphere(1.0,  Vec3(0.0, 1, 0.0), &shinyRed)),  // m small
+        std::make_shared<Sphere>(Sphere(1.0,  Vec3(1.5, 1, -1.5), &matteGreen)),  // r small
+        std::make_shared<Sphere>(Sphere(0.7,  Vec3(2, 0.7, 0.8), &glass)),  // front small
     } };
 
-    // Rendering loop
-    std::cout << "Rendering start." << std::endl;
-    std::vector<std::vector<Color>> pixels(camera.height, std::vector<Color>(camera.width));
-    double uStep{ 1.0 / camera.width / camera.antialiasing };
-    double vStep{ 1.0 / camera.height / camera.antialiasing };
+    camera.randerLoop(primitives);
 
-    for (int row{ 0 }; row < camera.height; ++row) {
-        std::cout << "\rRendering ROW " << row + 1 << " of " << camera.height << " .";
-        for (int col{ 0 }; col < camera.width; ++col) {
-            double u{ 1.0 * col / camera.width };
-            double v{ 1.0 * row / camera.height };
-            
-            for (int ui{ 0 }; ui < camera.antialiasing; ++ui) {
-                for (int vi{ 0 }; vi < camera.antialiasing; ++vi) {
-                    pixels[row][col] += render(camera.getRay(u + ui * uStep, v + vi * vStep), primitives);
-                }
-            }
-            
-            pixels[row][col] /= camera.antialiasing * camera.antialiasing;
-        }
-    }
-    std::cout << "Rendering finished" << std::endl;
-    
     // Output
-    outputPic("image", camera.width, camera.height, PIC_FORMAT::QOI, pixels);
+    outputPic("image", PIC_FORMAT::QOI, camera.pixels);
     return 0;
 }

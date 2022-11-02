@@ -8,11 +8,12 @@
 
 void outputPic(
     const std::string &filename,
-    const int &width,
-    const int &height,
     const PIC_FORMAT &f,
     const std::vector<std::vector<Color>> &pixels
 ) {
+    int height{ static_cast<int>(pixels.size()) };
+    int width{ static_cast<int>(pixels[0].size()) };
+    
     if (f == PIC_FORMAT::PPM) {
         std::cout << "Start writing PPM file." << std::endl;
         std::ofstream picOut;
@@ -31,6 +32,8 @@ void outputPic(
 
     if (f == PIC_FORMAT::QOI) {
         std::cout << "Start writing QOI file." << std::endl;
+
+        // Serialization
         char *rgb_pixels = new char[width * height * 3];
         for (int row{ 0 }; row < height; ++row) {
             for (int col{ 0 }; col < width; ++col) {

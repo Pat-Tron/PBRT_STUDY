@@ -8,6 +8,8 @@ Vec3 Material::randomSampleInHemiSphere(const Vec3 &normal, bool uniform, double
 
     // quaternion rotation
     Vec3 up{ 0.0, 1.0, 0.0 };
+    if ((normal - up).length() < 0.000001) return pos;
+
     double angle{ acos(normal * up) };
     Vec3 axis{ (up ^ normal).normalized() };
     double c{ cos(angle) };

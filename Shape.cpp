@@ -46,3 +46,30 @@ bool Sphere::hit(const Ray &ray, double tMin, double tMax, HitRec &rec) const {
     }
 }
 
+bool Triangle::hit(const Ray &ray, double tMin, double tMax, HitRec &rec) const {
+    /*
+        Computational process : Fundamentals of Computer Graphics, p88
+        Solve equation: Ray = o + td = f(beta, gamma) = A + beta*AB + gamma*AC
+        alpha(=1-beta-gamma), beta, gamma are barycentric coordinates of triangle
+        if alpha, beta, gamma all in [0, 1] and alpha + beta +gamma == 1, then HIT
+    */ 
+    Vec3 OA{ A - ray.origin };
+    const Vec3 &D{ ray.direction };
+    Vec3 tmpVec1{ AB.x * OA.y - OA.x * AB.y, OA.x * AB.z - AB.x * OA.z, AB.y * OA.z - OA.y * AB.z };
+    Vec3 tmpVec2{ AC.y * D.z - D.y * AC.z, D.x * AC.z - AC.x * D.z, AC.x * D.y - D.x * AC.y };
+    double determinant{ AB * tmpVec2 };
+
+    double t{ -(ACswitchXZ * tmpVec1) / determinant };
+    if (t < tMin || t > tMax) return false;
+    double gamma{ D.switchXZ() * tmpVec1 / determinant };
+    if (gamma < 0 || gamma > 1) return false;
+    double beta{ OA * tmpVec2 / determinant };
+    // Due to accuracy problem, beta + gamma may slightly bigger than 1, when ray exactly hit an edge.
+    if (beta < 0 || beta + gamma > 1.00000001) return false;
+
+    rec.t = t;
+    rec.p = ray.pointAtT(t);
+    rec.normal = normal;
+    rec.mat = mat;
+    return true;
+}
