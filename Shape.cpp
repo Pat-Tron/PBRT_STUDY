@@ -15,6 +15,8 @@ bool Primitives::hit(const Ray &ray, double tMin, double tMax, HitRec &rec) cons
     return hitOrNot;
 }
 
+const AABB &Primitives::aabb() const {}
+
 bool Sphere::hit(const Ray &ray, double tMin, double tMax, HitRec &rec) const {
     // Motion blur
     Vec3 actualCenter;
