@@ -2,22 +2,23 @@
 #include "utility.h"
 
 void Camera::initialization() {
+    // Right-hand coordinate system
     orientation.normalize();
     Vec3 globalUp{ 0.0, 1.0, 0.0 };
     right = (orientation ^ globalUp).normalized();
     up = (right ^ orientation).normalized();
     Vec3 filmCenter;
-    if (aperture == 0.0) {
-        filmHeight = filmWidth * resHeight / resWidth;
-        filmCenter = position + orientation * focal;
-    } else {
+    if (aperture >= 0.0) {
+        // defocus setting
         lensRadius = aperture * 0.5;
         filmWidth *= distanceToFocus / focal;
-        filmHeight = filmWidth * resHeight / resWidth;
-        filmCenter = position + orientation * distanceToFocus;
+        focal = distanceToFocus;
     }
+    filmCenter = position + orientation * focal;
+    filmHeight = filmWidth * resHeight / resWidth;
     leftDownCorner = filmCenter - right * filmWidth * 0.5 - up * filmHeight * 0.5;
-    
+
+    timeIntervel = timeEnd - timeStart;
 }
 
 Vec3 Camera::sampleInCircle() {
@@ -31,11 +32,11 @@ Ray Camera::getRay(double u, double v) {
     // Indices are counted row by row, left to right, top to bottom.
     v = 1.0 - v;
     Vec3 target = leftDownCorner + u * filmWidth * right + v * filmHeight * up;
-    if(aperture == 0.0) return Ray(position, target - position);
-    else {
-        Vec3 newP{ position + sampleInCircle() };
-        return Ray(newP, target - newP);
-    }
+
+    Vec3 newP{ position };
+    if(aperture >= 0.0) newP += sampleInCircle();
+    if (motionBlur) return Ray(newP, target - newP, timeStart + rand01() * timeIntervel);
+    else return Ray(newP, target - newP);
 }
 
 Color Camera::render(const Ray &ray, const Primitives &prims) const {

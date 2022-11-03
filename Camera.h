@@ -11,23 +11,30 @@ struct Resolution {
 };
 
 struct Camera {
+    // Film
     const std::array<Resolution, 3> presets{
         Resolution(1920, 1080),
         Resolution(2560, 1440),
         Resolution(3840, 2160)
     };
-    // Right-hand coordinate system
     Vec3 orientation{ 0.0, 0.0, 1.0 };
     Vec3 position{ 0.0, 0.0, 0.0 };    
     int resWidth{ 500 };
     int resHeight{ 500 };
 
+    // Lens
     double focal{ 5.0 };
-    int antialiasing{ 2 };
-    int maxDepth{ 5 };
     double aperture{ 0.0 };  // diameter
     double defocusScale{ 1.0 };
 
+    // Render
+    int antialiasing{ 2 };
+    int maxDepth{ 5 };
+
+    // Motion blur
+    bool motionBlur{ false };
+    double FPS{ 30.0 };
+    double timeStart{ 0.0 }, timeEnd{ 1.0 / FPS }, timeIntervel{ 0.0 };
 
     std::vector<std::vector<Color>> pixels;
 

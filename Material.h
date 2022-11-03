@@ -22,7 +22,7 @@ struct Lambertian : public Material {
     Lambertian(const Color &a) : Material(a) {}
 
     virtual Ray scatter(const Ray &rayIn, const HitRec &rec) const override {
-        return Ray(rec.p, randomSampleInHemiSphere(rec.normal));
+        return Ray(rec.p, randomSampleInHemiSphere(rec.normal), rayIn.time);
     }
 };
 
@@ -34,8 +34,8 @@ struct Metal : public Material {
 
     virtual Ray scatter(const Ray &rayIn, const HitRec &rec) const override {
         Vec3 reflected{ reflect(rayIn.direction.normalized(), rec.normal)};
-        if (fuzz == 0.0) return Ray(rec.p, reflected);
-        else return Ray(rec.p, randomSampleInHemiSphere(reflected, false, fuzz));
+        if (fuzz == 0.0) return Ray(rec.p, reflected, rayIn.time);
+        else return Ray(rec.p, randomSampleInHemiSphere(reflected, false, fuzz), rayIn.time);
     }
 };
 
@@ -48,7 +48,7 @@ struct Dielectric : public Material {
         criticalAngle = asin(1.0 / IOR);
     }
     virtual Ray scatter(const Ray &rayIn, const HitRec &rec) const override {
-        return Ray(rec.p, refract(rayIn.direction.normalized(), rec.normal));
+        return Ray(rec.p, refract(rayIn.direction.normalized(), rec.normal), rayIn.time);
     }
 
 private:

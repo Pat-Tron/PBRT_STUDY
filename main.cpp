@@ -5,14 +5,15 @@
 #include "Shape.h"
 
 int main() {
-    Camera camera(P1K);
+    Camera camera(P1K, 0.8);
     camera.position = Vec3(20, 4.5, -2);
     camera.focal = 3.0 ;
-    camera.antialiasing = 10 ;
-    camera.maxDepth = 10;
-    camera.aperture = 0.2;
+    camera.antialiasing = 5 ;
+    camera.maxDepth = 5;
+    //camera.aperture = 0.2;
     camera.defocusScale = 0.9;
     camera.faceAt(Vec3(0.0, 0.8, 0.0));
+    camera.motionBlur = true;
 
     Lambertian diffuseGround(0x5654f7);
     Lambertian diffuseYellow(0xffe815);
@@ -39,7 +40,7 @@ int main() {
         std::make_shared<Sphere>(Sphere(1.0,  Vec3(1.5, 1, -1.5), &matteGreen)),  // r small
         std::make_shared<Sphere>(Sphere(0.7,  Vec3(2, 0.7, 0.8), &glass)),  // front small
 
-        std::make_shared<Sphere>(Sphere(0.2,  Vec3(2.5, 0.2, -1.8), &diffusePurple)),
+        std::make_shared<Sphere>(Sphere(0.2,  Vec3(2.5, 0.2, -1.8), &diffusePurple, Vec3(0, 0, 3))),
         std::make_shared<Sphere>(Sphere(0.3,  Vec3(2, 0.3, -0.5), &glass2)),
         std::make_shared<Sphere>(Sphere(0.4,  Vec3(-3, 0.4, 3), &matteGreen2)),
         std::make_shared<Sphere>(Sphere(0.4,  Vec3(0.8, 0.4, -2.7), &shinyOrange))

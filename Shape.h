@@ -23,9 +23,11 @@ struct Primitives : public Primitive {
 
 struct Sphere : public Primitive {
     double radius{ 1.0 };
-    Vec3 center;
+    Vec3 center, velocity;
+    bool moving{ false };
     Sphere() = default;
-    Sphere(double r, Vec3 c, Material *m) : Primitive(m), radius(r), center(c) {}
+    Sphere(double r, Vec3 c, Material *m, Vec3 v = Vec3(0.0, 0.0, 0.0)) :
+        Primitive(m), radius(r), center(c), velocity(v), moving(v.length()) {}
     bool hit(const Ray &ray, double tMin, double tMax, HitRec &rec) const override;
 };
 

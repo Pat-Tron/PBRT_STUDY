@@ -16,6 +16,11 @@ bool Primitives::hit(const Ray &ray, double tMin, double tMax, HitRec &rec) cons
 }
 
 bool Sphere::hit(const Ray &ray, double tMin, double tMax, HitRec &rec) const {
+    // Motion blur
+    Vec3 actualCenter;
+    if (moving) actualCenter = center + velocity * ray.time;
+    else actualCenter = center;
+
     /*
         p(t): point at Ray of parameter "t"
             -> p(t) = o + td
@@ -25,7 +30,7 @@ bool Sphere::hit(const Ray &ray, double tMin, double tMax, HitRec &rec) const {
             -> t^2*d^2 + 2*t*(d*(o-center)) + (o-center)^2 - R^2 = 0
             -> delta(discriminant) = b^2 - 4ac
     */
-    Vec3 co{ ray.origin - center };
+    Vec3 co{ ray.origin - actualCenter };
     const Vec3 &d = ray.direction;
     double a{ d * d }, b{ co * d }, c{ co * co - radius * radius };
     double discriminant = b * b - a * c;
@@ -40,7 +45,7 @@ bool Sphere::hit(const Ray &ray, double tMin, double tMax, HitRec &rec) const {
         }
         rec.t = root;
         rec.p = ray.pointAtT(root);
-        rec.normal = (rec.p - center) / radius;
+        rec.normal = (rec.p - actualCenter) / radius;
         rec.mat = mat;
         return true;
     }
