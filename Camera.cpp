@@ -60,6 +60,7 @@ void Camera::randerLoop(const std::vector<primPointer> &prims) {
     initialization();
 
     BVH bvh{ prims, 0, prims.size() };
+    //bvh.printSelf();
 
     // Rendering loop
     std::cout << "Rendering start." << std::endl;

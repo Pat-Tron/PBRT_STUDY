@@ -105,3 +105,18 @@ bool BVH::hit(const Ray &ray, double tMin, double tMax, HitRec &rec) const {
         return lHit || rHit;
     } else return false;
 }
+
+void BVH::printSelf() const {
+    static int depth{ 0 };
+    for (int i = 0; i < depth; ++i) std::cout << "   ";
+    std::cout << "L: \n";
+    depth++;
+    left->printSelf();
+    depth--;
+
+    for (int i = 0; i < depth; ++i) std::cout << "   ";
+    std::cout << "R: \n";
+    depth++;
+    right->printSelf();
+    depth--;
+}
