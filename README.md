@@ -1,6 +1,9 @@
 # pbrt
 
 ### weekendFinish
+![motionBlur_1K_BVH_HalfHour](milestones/motionBlur_1K_BVH_HalfHour.png "motionBlur_1K_BVH_HalfHour")
+
+### weekendFinish
 ![weekendFinish](milestones/weekendFinish.png "weekendFinish")
 ---
 ### glassIOR115

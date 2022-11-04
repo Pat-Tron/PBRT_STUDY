@@ -18,5 +18,8 @@ struct AABB {
         return *this;
     }
     void expand(double p) { minBound -= Vec3(p); maxBound += Vec3(p); }
+    friend std::ostream &operator<<(std::ostream &os, const AABB &ab) {
+        os << "minBound: " << ab.minBound << ", " << "maxBound: " << ab.maxBound << std::endl;
+        return os;
+    }
 };
-
