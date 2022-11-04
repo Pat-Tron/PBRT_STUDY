@@ -3,17 +3,24 @@
 #include "Output.h"
 #include "Camera.h"
 #include "Shape.h"
+#include <ctime>
 
 int main() {
-    Camera camera(P1K, 0.8);
+    std::time_t globalTimeStart = std::time(nullptr);
+
+    Camera camera(P1K, 0.5);
     camera.position = Vec3(20, 4.5, -2);
     camera.focal = 3.0 ;
-    camera.antialiasing = 5 ;
+    camera.antialiasing = 1 ;
     camera.maxDepth = 5;
     //camera.aperture = 0.2;
     camera.defocusScale = 0.9;
     camera.faceAt(Vec3(0.0, 0.8, 0.0));
     camera.motionBlur = true;
+
+    AABB::padding = 0.00001;
+    Primitive::timeStart = camera.timeStart;
+    Primitive::timeEnd = camera.timeEnd;
 
     Lambertian diffuseGround(0x5654f7);
     Lambertian diffuseYellow(0xffe815);
@@ -32,7 +39,7 @@ int main() {
         Vec3(-squareSize * 0.5, 0.0, -squareSize * 0.5),
         Vec3(squareSize * 0.5, 0.0, -squareSize * 0.5)
     };
-    Primitives primitives{ std::vector<std::shared_ptr<const Primitive>>{
+    std::vector<std::shared_ptr<Primitive>> primitives{
         std::make_shared<Triangle>(Triangle(corners[0], corners[3], corners[1], &diffuseGround)), // ground
         std::make_shared<Triangle>(Triangle(corners[3], corners[2], corners[1], &diffuseGround)), // ground
         std::make_shared<Sphere>(Sphere(1.0,  Vec3(-1.5, 1, 1.5), &diffuseYellow)),  // l small
@@ -44,11 +51,15 @@ int main() {
         std::make_shared<Sphere>(Sphere(0.3,  Vec3(2, 0.3, -0.5), &glass2)),
         std::make_shared<Sphere>(Sphere(0.4,  Vec3(-3, 0.4, 3), &matteGreen2)),
         std::make_shared<Sphere>(Sphere(0.4,  Vec3(0.8, 0.4, -2.7), &shinyOrange))
-    } };
+    };
 
     // TODO: random balls
 
     camera.randerLoop(primitives);
+
+    std::time_t globalTimeEnd = std::time(nullptr);
+    time_t seconds{ globalTimeEnd - globalTimeStart };
+    std::cout << "\nTotal time spending: " << seconds / 60 << "m " << seconds % 60 << "s.\n\n";
 
     // Output
     outputPic("image", PIC_FORMAT::QOI, camera.pixels);

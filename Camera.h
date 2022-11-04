@@ -49,7 +49,7 @@ struct Camera {
         orientation = target - position;
         distanceToFocus = orientation.length() * defocusScale;
     }
-    void randerLoop(const Primitives &prims);
+    void randerLoop(const std::vector<primPointer> &prims);
 
 private:
     double filmWidth{ 1.0 };
@@ -59,6 +59,6 @@ private:
     Vec3 leftDownCorner, right, up;
     void initialization();
     Vec3 sampleInCircle();
-    Color render(const Ray &ray, const Primitives &prims) const;
+    Color render(const Ray &ray, const BVH &bvh) const;
     Ray getRay(double u, double v);
 };

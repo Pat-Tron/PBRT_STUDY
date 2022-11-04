@@ -39,13 +39,13 @@ Ray Camera::getRay(double u, double v) {
     else return Ray(newP, target - newP);
 }
 
-Color Camera::render(const Ray &ray, const Primitives &prims) const {
+Color Camera::render(const Ray &ray, const BVH &bvh) const {
     HitRec rec;
     static int depth{ 0 };
-    if (prims.hit(ray, 0.0000001, 1e10, rec)) {
+    if (bvh.hit(ray, 0.0000001, 1e10, rec)) {
         if (depth < maxDepth) {
             ++depth;
-            return render(rec.mat->scatter(ray, rec), prims) * rec.mat->albedo * rec.mat->reflectance;
+            return render(rec.mat->scatter(ray, rec), bvh) * rec.mat->albedo * rec.mat->reflectance;
         } else {
             depth = 0;
             return rec.mat->albedo;
@@ -56,8 +56,10 @@ Color Camera::render(const Ray &ray, const Primitives &prims) const {
     }
 }
 
-void Camera::randerLoop(const Primitives &prims) {
+void Camera::randerLoop(const std::vector<primPointer> &prims) {
     initialization();
+
+    BVH bvh{ prims, 0, prims.size() };
 
     // Rendering loop
     std::cout << "Rendering start." << std::endl;
@@ -73,12 +75,12 @@ void Camera::randerLoop(const Primitives &prims) {
             for (int ui{ 0 }; ui < antialiasing; ++ui) {
                 for (int vi{ 0 }; vi < antialiasing; ++vi) {
                     Ray r = getRay(u + ui * uStep, v + vi * vStep);
-                    pixels[row][col] += render(r, prims);
+                    pixels[row][col] += render(r, bvh);
                 }
             }
 
             pixels[row][col] /= antialiasing * antialiasing;
         }
     }
-    std::cout << "Rendering finished" << std::endl;
+    std::cout << "\nRendering finished" << std::endl;
 }

@@ -31,7 +31,7 @@ void outputPic(
     }
 
     if (f == PIC_FORMAT::QOI) {
-        std::cout << "Start writing QOI file." << std::endl;
+        std::cout << "Write QOI file." << std::endl;
 
         // Serialization
         char *rgb_pixels = new char[width * height * 3];
@@ -43,7 +43,6 @@ void outputPic(
                 rgb_pixels[row * width * 3 + col * 3 + 2] = pxl.d2c(pxl.B);
             }
         }
-        std::cout << "\nConverting finished." << std::endl;
 
         qoi_desc desc;
         desc.width = width;
@@ -52,6 +51,5 @@ void outputPic(
         desc.colorspace = QOI_SRGB;
         qoi_write((filename + ".qoi").c_str(), rgb_pixels, &desc);
         delete[]rgb_pixels;
-        std::cout << "QOI output finished." << std::endl;
     }
 }

@@ -1,21 +1,7 @@
 #include "Shape.h"
 
-bool Primitives::hit(const Ray &ray, double tMin, double tMax, HitRec &rec) const {
-    HitRec tempRec;
-    bool hitOrNot{ false };
-    double closestSoFar{ tMax };
-
-    for (size_t i{ 0 }; i < primAmounts; ++i) {
-        if (prims[i]->hit(ray, tMin, closestSoFar, tempRec)) {
-            hitOrNot = true;
-            rec = tempRec;
-            if(rec.t < closestSoFar) closestSoFar = rec.t;
-        }
-    }
-    return hitOrNot;
-}
-
-const AABB &Primitives::aabb() const {}
+double Primitive::timeStart = 0.0;
+double Primitive::timeEnd = 0.0;
 
 bool Sphere::hit(const Ray &ray, double tMin, double tMax, HitRec &rec) const {
     // Motion blur
@@ -79,4 +65,43 @@ bool Triangle::hit(const Ray &ray, double tMin, double tMax, HitRec &rec) const 
     rec.normal = normal;
     rec.mat = mat;
     return true;
+}
+
+BVH::BVH(const std::vector<primPointer> &constPrims, size_t start, size_t end) {
+    auto prims{ constPrims };
+    int axis{ static_cast<int>(rand01() * 3.0) };
+    size_t primCount{ end - start };
+
+    // lambda expression
+    auto lmbd = [axis](const primPointer a, const primPointer b) -> bool {
+        return a->box.minBound[axis] < b->box.minBound[axis];
+    };
+
+    // Subtree with one leaf node
+    if (primCount == 1) left = right = prims[start];
+    else if (primCount == 2) {
+        // Subtree with two leaf node
+        if (lmbd(prims[start], prims[start + 1])) {
+            left = prims[start]; right = prims[start + 1];
+        } else {
+            left = prims[start + 1]; right = prims[start];
+        }
+    } else {
+        // Other subtree
+        std::sort(prims.begin() + start, prims.begin() + end, lmbd);
+        size_t mid{ start + (primCount >> 1) };
+        left = std::make_shared<BVH>(prims, start, mid);
+        right = std::make_shared<BVH>(prims, mid, end);
+    }
+
+    box = makeAABB();
+}
+
+bool BVH::hit(const Ray &ray, double tMin, double tMax, HitRec &rec) const {
+    if (box.hit(ray, tMin, tMax)) {
+        bool lHit{ left->hit(ray, tMin, tMax, rec) };
+        tMax = lHit ? rec.t : tMax;
+        bool rHit{ right->hit(ray, tMin, tMax, rec) };
+        return lHit || rHit;
+    } else return false;
 }
