@@ -10,7 +10,7 @@ int main() {
 
     Camera camera(P1K, 0.5);
     camera.position = Vec3(20, 4.5, -2);
-    camera.focal = 3.0 ;
+    camera.focal = 3.0;
     camera.antialiasing = 5;
     camera.maxDepth = 5;
     camera.aperture = 0.2;
@@ -54,7 +54,7 @@ int main() {
     };
 
     // Random balls
-    for (int i{ 0 }; i < 0; ++i) {
+    for (int i{ 0 }; i < 50; ++i) {
         double randX{ (rand01() - 0.5) * squareSize };
         double randZ{ (rand01() - 0.5) * squareSize };
         double randR{ rand01() * 0.3 + 0.2 };
