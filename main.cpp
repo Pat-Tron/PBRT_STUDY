@@ -54,7 +54,7 @@ int main() {
     };
 
     // Random balls
-    for (int i{ 0 }; i < 0; ++i) {
+    for (int i{ 0 }; i < 50; ++i) {
         double randX{ (rand01() - 0.5) * squareSize };
         double randZ{ (rand01() - 0.5) * squareSize };
         double randR{ rand01() * 0.3 + 0.2 };
