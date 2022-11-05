@@ -8,11 +8,11 @@
 int main() {
     std::time_t globalTimeStart = std::time(nullptr);
 
-    Camera camera(P1K);
+    Camera camera(P1K, 0.5);
     camera.position = Vec3(20, 4.5, -2);
     camera.focal = 3.0 ;
-    camera.antialiasing = 10;
-    camera.maxDepth = 10;
+    camera.antialiasing = 5;
+    camera.maxDepth = 5;
     camera.aperture = 0.2;
     camera.defocusScale = 0.9;
     camera.faceAt(Vec3(0.0, 0.8, 0.0));
