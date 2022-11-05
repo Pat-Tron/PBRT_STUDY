@@ -101,7 +101,7 @@ bool BVH::hit(const Ray &ray, double tMin, double tMax, HitRec &rec) const {
     if (box.hit(ray, tMin, tMax)) {
         bool lHit{ left->hit(ray, tMin, tMax, rec) };
         tMax = lHit ? rec.t : tMax;
-        bool rHit{ right->hit(ray, tMin, tMax, rec) };
+        bool rHit{ left == right ? false : right->hit(ray, tMin, tMax, rec)};
         return lHit || rHit;
     } else return false;
 }
@@ -111,11 +111,11 @@ void BVH::printSelf() const {
 
     for (int i = 0; i < depth; ++i) std::cout << "   ";
     if (std::string(typeid(*left).name()) != std::string("struct BVH")) {
-        std::cout << "L: ";
+        std::cout << "L: " << left << ' ';
         left->printSelf();
         std::cout << std::endl;
     } else {
-        std::cout << "L: \n";
+        std::cout << "L: " << left << "\n";
         depth++;
         left->printSelf();
         depth--;
@@ -124,11 +124,11 @@ void BVH::printSelf() const {
 
     for (int i = 0; i < depth; ++i) std::cout << "   ";
     if (std::string(typeid(*right).name()) != std::string("struct BVH")) {
-        std::cout << "R: ";
+        std::cout << "R: " << right << ' ';
         right->printSelf();
         std::cout << std::endl;
     } else {
-        std::cout << "R: \n";
+        std::cout << "R: " << right << "\n";
         depth++;
         right->printSelf();
         depth--;

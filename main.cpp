@@ -6,7 +6,7 @@
 #include <ctime>
 
 int main() {
-    std::time_t globalTimeStart = std::time(nullptr);
+    clock_t globalTimeStart = clock();
 
     Camera camera(P1K, 0.5);
     camera.position = Vec3(20, 4.5, -2);
@@ -54,7 +54,7 @@ int main() {
     };
 
     // Random balls
-    for (int i{ 0 }; i < 50; ++i) {
+    for (int i{ 0 }; i < 0; ++i) {
         double randX{ (rand01() - 0.5) * squareSize };
         double randZ{ (rand01() - 0.5) * squareSize };
         double randR{ rand01() * 0.3 + 0.2 };
@@ -65,9 +65,11 @@ int main() {
     
     camera.randerLoop(primitives);
 
-    std::time_t globalTimeEnd = std::time(nullptr);
-    time_t seconds{ globalTimeEnd - globalTimeStart };
-    std::cout << "\nTotal time spending: " << seconds / 60 << "m " << seconds % 60 << "s.\n\n";
+    clock_t globalTimeEnd = clock();
+    clock_t seconds{ globalTimeEnd - globalTimeStart };
+    std::cout << "\nTotal time spending: "
+        << seconds / 60 / 1000 << "m "
+        << seconds / 1000 % 60 + (seconds % 1000 / 1000.0) << "s.\n\n";
 
     // Output
     outputPic("image", PIC_FORMAT::QOI, camera.pixels);
