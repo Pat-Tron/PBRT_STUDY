@@ -1,7 +1,23 @@
 #include "Shape.h"
+#include <string>
 
 double Primitive::timeStart = 0.0;
 double Primitive::timeEnd = 0.0;
+
+bool Primitives::hit(const Ray &ray, double tMin, double tMax, HitRec &rec) const {
+    HitRec tempRec;
+    bool hitOrNot{ false };
+    double closestSoFar{ tMax };
+
+    for (size_t i{ 0 }; i < primAmounts; ++i) {
+        if (prims[i]->hit(ray, tMin, closestSoFar, tempRec)) {
+            hitOrNot = true;
+            rec = tempRec;
+            if (rec.t < closestSoFar) closestSoFar = rec.t;
+        }
+    }
+    return hitOrNot;
+}
 
 bool Sphere::hit(const Ray &ray, double tMin, double tMax, HitRec &rec) const {
     // Motion blur
@@ -108,15 +124,29 @@ bool BVH::hit(const Ray &ray, double tMin, double tMax, HitRec &rec) const {
 
 void BVH::printSelf() const {
     static int depth{ 0 };
-    for (int i = 0; i < depth; ++i) std::cout << "   ";
-    std::cout << "L: \n";
-    depth++;
-    left->printSelf();
-    depth--;
 
     for (int i = 0; i < depth; ++i) std::cout << "   ";
-    std::cout << "R: \n";
-    depth++;
-    right->printSelf();
-    depth--;
+    if (std::string(typeid(*left).name()) != std::string("struct BVH")) {
+        std::cout << "L: ";
+        left->printSelf();
+        std::cout << std::endl;
+    } else {
+        std::cout << "L: \n";
+        depth++;
+        left->printSelf();
+        depth--;
+    }
+    
+
+    for (int i = 0; i < depth; ++i) std::cout << "   ";
+    if (std::string(typeid(*right).name()) != std::string("struct BVH")) {
+        std::cout << "R: ";
+        right->printSelf();
+        std::cout << std::endl;
+    } else {
+        std::cout << "R: \n";
+        depth++;
+        right->printSelf();
+        depth--;
+    }
 }

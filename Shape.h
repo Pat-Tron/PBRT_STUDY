@@ -30,6 +30,16 @@ struct Primitive {
 
 using primPointer = std::shared_ptr<Primitive>;
 
+struct Primitives : public Primitive {
+    size_t primAmounts{ 0 };
+    const std::vector<primPointer> &prims;
+    Primitives() = default;
+    Primitives(const std::vector<primPointer> &ps) : primAmounts(ps.size()), prims(ps) {}
+    bool hit(const Ray &ray, double tMin, double tMax, HitRec &rec) const override;
+    virtual AABB makeAABB() const override { return AABB(); }
+    virtual void printSelf() const override {}
+};
+
 struct Sphere : public Primitive {
     double radius{ 1.0 };
     Vec3 center;
