@@ -16,7 +16,7 @@ int main() {
     camera.aperture = 0.2;
     camera.defocusScale = 0.9;
     camera.faceAt(Vec3(0.0, 0.8, 0.0));
-    //camera.motionBlur = true;
+    camera.motionBlur = true;
 
     AABB::padding = 0.00001;
     Primitive::timeStart = camera.timeStart;
@@ -47,7 +47,7 @@ int main() {
         std::make_shared<Sphere>(Sphere(1.0,  Vec3(1.5, 1, -1.5), &matteGreen)),  // r small
         std::make_shared<Sphere>(Sphere(0.7,  Vec3(2, 0.7, 0.8), &glass)),  // front small
 
-        //std::make_shared<Sphere>(Sphere(0.2,  Vec3(2.5, 0.2, -1.8), &diffusePurple, Vec3(0, 0, 3))),
+        std::make_shared<Sphere>(Sphere(0.2,  Vec3(2.5, 0.2, -1.8), &diffusePurple, Vec3(0, 0, 3))),
         std::make_shared<Sphere>(Sphere(0.3,  Vec3(2, 0.3, -0.5), &glass2)),
         std::make_shared<Sphere>(Sphere(0.4,  Vec3(-3, 0.4, 3), &matteGreen2)),
         std::make_shared<Sphere>(Sphere(0.4,  Vec3(0.8, 0.4, -2.7), &shinyOrange))
@@ -55,8 +55,8 @@ int main() {
 
     // Random balls
     for (int i{ 0 }; i < 50; ++i) {
-        double randX{ rand01() - 0.5 * squareSize };
-        double randZ{ rand01() - 0.5 * squareSize };
+        double randX{ (rand01() - 0.5) * squareSize };
+        double randZ{ (rand01() - 0.5) * squareSize };
         double randR{ rand01() * 0.3 + 0.2 };
         primitives.push_back(
             std::make_shared<Sphere>(Sphere(randR, Vec3(randX, randR, randZ), &diffusePurple))
