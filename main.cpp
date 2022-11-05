@@ -42,9 +42,9 @@ int main() {
     std::vector<primPointer> primitives{
         std::make_shared<Triangle>(Triangle(corners[0], corners[3], corners[1], &diffuseGround)), // ground
         std::make_shared<Triangle>(Triangle(corners[3], corners[2], corners[1], &diffuseGround)), // ground
-        std::make_shared<Sphere>(Sphere(1.0,  Vec3(-1.5, 1, 1.5), &diffuseYellow)),  // l small
-        std::make_shared<Sphere>(Sphere(1.0,  Vec3(0.0, 1, 0.0), &shinyRed)),  // m small
-        std::make_shared<Sphere>(Sphere(1.0,  Vec3(1.5, 1, -1.5), &matteGreen)),  // r small
+        std::make_shared<Sphere>(Sphere(1.0,  Vec3(-1.5, 1, 1.5), &diffuseYellow)),  // l
+        std::make_shared<Sphere>(Sphere(1.0,  Vec3(0.0, 1, 0.0), &shinyRed)),  // m
+        std::make_shared<Sphere>(Sphere(1.0,  Vec3(1.5, 1, -1.5), &matteGreen)),  // r
         std::make_shared<Sphere>(Sphere(0.7,  Vec3(2, 0.7, 0.8), &glass)),  // front small
 
         std::make_shared<Sphere>(Sphere(0.2,  Vec3(2.5, 0.2, -1.8), &diffusePurple, Vec3(0, 0, 3))),
@@ -53,8 +53,16 @@ int main() {
         std::make_shared<Sphere>(Sphere(0.4,  Vec3(0.8, 0.4, -2.7), &shinyOrange))
     };
 
-    // TODO: random balls
-
+    // Random balls
+    for (int i{ 0 }; i < 0; ++i) {
+        double randX{ (rand01() - 0.5) * squareSize };
+        double randZ{ (rand01() - 0.5) * squareSize };
+        double randR{ rand01() * 0.3 + 0.2 };
+        primitives.push_back(
+            std::make_shared<Sphere>(Sphere(randR, Vec3(randX, randR, randZ), &diffusePurple))
+        );
+    }
+    
     camera.randerLoop(primitives);
 
     std::time_t globalTimeEnd = std::time(nullptr);

@@ -108,15 +108,29 @@ bool BVH::hit(const Ray &ray, double tMin, double tMax, HitRec &rec) const {
 
 void BVH::printSelf() const {
     static int depth{ 0 };
-    for (int i = 0; i < depth; ++i) std::cout << "   ";
-    std::cout << "L: \n";
-    depth++;
-    left->printSelf();
-    depth--;
 
     for (int i = 0; i < depth; ++i) std::cout << "   ";
-    std::cout << "R: \n";
-    depth++;
-    right->printSelf();
-    depth--;
+    if (std::string(typeid(*left).name()) != std::string("struct BVH")) {
+        std::cout << "L: ";
+        left->printSelf();
+        std::cout << std::endl;
+    } else {
+        std::cout << "L: \n";
+        depth++;
+        left->printSelf();
+        depth--;
+    }
+
+
+    for (int i = 0; i < depth; ++i) std::cout << "   ";
+    if (std::string(typeid(*right).name()) != std::string("struct BVH")) {
+        std::cout << "R: ";
+        right->printSelf();
+        std::cout << std::endl;
+    } else {
+        std::cout << "R: \n";
+        depth++;
+        right->printSelf();
+        depth--;
+    }
 }

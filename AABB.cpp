@@ -9,6 +9,8 @@ bool AABB::hit(const Ray &ray, double tMin, double tMax) const {
         if (isnan(t0) || isnan(t1)) return false;
         if (ray.direction[i] < 0.0) std::swap(t0, t1);
         if (t0 > tMax || t1 < tMin) return false;
+        tMin = std::max(tMin, t0);
+        tMax = std::min(tMax, t1);
     }
     return true;
 }
