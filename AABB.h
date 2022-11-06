@@ -12,7 +12,7 @@ struct AABB {
 
     AABB() = default;
     AABB(const Vec3 &min, const Vec3 &max);
-    bool hit(const Ray &ray, double tMin, double tMax) const;
+    bool hit(const Ray &ray, const double &tMin, const double &tMax) const;
     AABB operator+(const AABB &b) const;
     AABB &operator+=(const AABB &b);
     void expand(double p) { minBound -= Vec3(p); maxBound += Vec3(p); }

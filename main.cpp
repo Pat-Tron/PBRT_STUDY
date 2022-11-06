@@ -54,14 +54,14 @@ int main() {
     };
 
     // Random balls
-    for (int i{ 0 }; i < 50; ++i) {
-        double randX{ (rand01() - 0.5) * squareSize };
-        double randZ{ (rand01() - 0.5) * squareSize };
-        double randR{ rand01() * 0.3 + 0.2 };
-        primitives.push_back(
-            std::make_shared<Sphere>(Sphere(randR, Vec3(randX, randR, randZ), &diffusePurple))
-        );
-    }
+    //for (int i{ 0 }; i < 50; ++i) {
+    //    double randX{ (rand01() - 0.5) * squareSize };
+    //    double randZ{ (rand01() - 0.5) * squareSize };
+    //    double randR{ rand01() * 0.3 + 0.2 };
+    //    primitives.push_back(
+    //        std::make_shared<Sphere>(Sphere(randR, Vec3(randX, randR, randZ), &diffusePurple))
+    //    );
+    //}
     
     camera.randerLoop(primitives);
 

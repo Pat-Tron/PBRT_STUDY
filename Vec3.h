@@ -45,6 +45,7 @@ struct Vec3 {
     Vec3 switchXZ() const { return Vec3(z, y, x); }
     double max(double n = 0.0) const { return std::max(std::max(std::max(x, y), z), n); }
     double min(double n = 0.0) const { return std::min(std::min(std::min(x, y), z), n); }
+    Vec3 reciprocal() const { return Vec3(1.0 / x, 1.0 / y, 1.0 / z); }
 };
 
 inline std::ostream &operator<<(std::ostream &os, const Vec3 &vec) {
