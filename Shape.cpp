@@ -68,36 +68,6 @@ bool Triangle::hit(const Ray &ray, double tMin, double tMax, HitRec &rec) const 
     return true;
 }
 
-//BVH::BVH(const std::vector<primPointer> &constPrims, size_t start, size_t end) {
-//    auto prims{ constPrims };
-//    int axis{ static_cast<int>(rand01() * 3.0) };
-//    size_t primCount{ end - start };
-//
-//    // lambda expression
-//    auto lmbd = [axis](const primPointer a, const primPointer b) -> bool {
-//        return a->box.minBound[axis] < b->box.minBound[axis];
-//    };
-//
-//    // Subtree with one leaf node
-//    if (primCount == 1) left = right = prims[start];
-//    else if (primCount == 2) {
-//        // Subtree with two leaf node
-//        if (lmbd(prims[start], prims[start + 1])) {
-//            left = prims[start]; right = prims[start + 1];
-//        } else {
-//            left = prims[start + 1]; right = prims[start];
-//        }
-//    } else {
-//        // Other subtree
-//        std::sort(prims.begin() + start, prims.begin() + end, lmbd);
-//        size_t mid{ start + (primCount >> 1) };
-//        left = std::make_shared<BVH>(prims, start, mid);
-//        right = std::make_shared<BVH>(prims, mid, end);
-//    }
-//
-//    box = makeAABB();
-//}
-
 BVH::BVH(std::vector<primPointer> &prims, itrt start, itrt end) {
     auto primCount{ end - start };
     
