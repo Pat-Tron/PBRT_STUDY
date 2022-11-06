@@ -18,11 +18,13 @@ inline Color background(const Ray &ray, const Vec3 &up) {
 struct Primitive {
     static double timeStart, timeEnd;
     Material *mat{ nullptr };
+    Vec3 centroid;
     Vec3 velocity;
     bool moving{ false };
     AABB box;
     Primitive() = default;
-    Primitive(Material *mt, const Vec3 &v = Vec3()) : mat(mt), velocity(v), moving(v.length()) {}
+    Primitive(Material *mt, Vec3 c, Vec3 v = Vec3()) :
+        mat(mt), centroid(c), velocity(v), moving(v.length()) {}
     virtual bool hit(const Ray &ray, double tMin, double tMax, HitRec &rec) const = 0;
     virtual AABB makeAABB() const = 0;
     virtual void printSelf() const = 0;
@@ -35,7 +37,7 @@ struct Sphere : public Primitive {
     Vec3 center;
     Sphere() = default;
     Sphere(double r, Vec3 c, Material *m, Vec3 v = Vec3()) :
-        Primitive(m, v), radius(r), center(c) { box = makeAABB(); }
+        Primitive(m, c, v), radius(r), center(c) { box = makeAABB(); }
     bool hit(const Ray &ray, double tMin, double tMax, HitRec &rec) const override;
     AABB makeAABB() const override {
         if (!moving) return AABB(center - Vec3(radius), center + Vec3(radius));
@@ -45,31 +47,34 @@ struct Sphere : public Primitive {
         AABB abT1 = AABB(centerT1 - Vec3(radius), centerT1 + Vec3(radius));
         return abT0 + abT1;
     }
-    virtual void printSelf() const override { std::cout << "Sphere   "; }
+    virtual void printSelf() const override { std::cout << "Sphere"; }
 };
 
 struct Triangle : public Primitive {
-    Vec3 A, B, C, AB, AC, ACswitchXZ, normal;  // counterclockwise
+    Vec3 A, B, C, BA, CA, CAswitchXZ, normal;  // counterclockwise
 
     Triangle() = default;
     Triangle(const Vec3 &a, const Vec3 &b, const Vec3 &c, Material *m) :
-        Primitive(m), A(a), B(b), C(c), AB(A - B), AC(A - C), ACswitchXZ(AC.switchXZ()) {
-        normal = (AB ^ AC).normalized();
+        Primitive(m, getCentroid(a, b, c)), A(a), B(b), C(c),
+        BA(A - B), CA(A - C), CAswitchXZ(CA.switchXZ()) {
+        normal = (BA ^ CA).normalized();
         box = makeAABB();
     };
 
+    Vec3 getCentroid(Vec3 a, Vec3 b, Vec3 c) const { return (b - a + c - a) / 3.0; }
     bool hit(const Ray &ray, double tMin, double tMax, HitRec &rec) const override;
     AABB makeAABB() const override { return AABB(minVec3(minVec3(A, B), C), maxVec3(maxVec3(A, B), C)); }
-    virtual void printSelf() const override { std::cout << "Triangle "; }
+    virtual void printSelf() const override { std::cout << "Triangle"; }
 };
 
 struct BVH : public Primitive {
     // Bounding Volume Hierarchy, container node
+    using itrt = std::vector<primPointer>::iterator;
     std::shared_ptr<Primitive> left, right;
     BVH() = default;
-    BVH(const std::vector<primPointer> &constPrims, size_t start, size_t end);
+    BVH(std::vector<primPointer> &constPrims, itrt start, itrt end);
 
     bool hit(const Ray &ray, double tMin, double tMax, HitRec &rec) const override;
-    AABB makeAABB() const override { return left->box + right->box; }
+    AABB makeAABB() const override { return AABB(); }
     virtual void printSelf() const override;
 };

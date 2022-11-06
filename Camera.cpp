@@ -56,10 +56,11 @@ Color Camera::render(const Ray &ray, const BVH &bvh) const {
     }
 }
 
-void Camera::randerLoop(const std::vector<primPointer> &prims) {
+void Camera::randerLoop(const std::vector<primPointer> &constPrims) {
     initialization();
 
-    BVH bvh{ prims, 0, prims.size() };
+    std::vector<primPointer> prims{ constPrims };
+    BVH bvh{ prims, prims.begin(), prims.end()};
     std::cout << "BVH tree:\n" << std::endl;
     bvh.printSelf();
 

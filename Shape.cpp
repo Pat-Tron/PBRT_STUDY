@@ -1,4 +1,5 @@
 #include "Shape.h"
+#include <numeric>
 
 double Primitive::timeStart = 0.0;
 double Primitive::timeEnd = 0.0;
@@ -48,11 +49,11 @@ bool Triangle::hit(const Ray &ray, double tMin, double tMax, HitRec &rec) const 
     */ 
     Vec3 OA{ A - ray.origin };
     const Vec3 &D{ ray.direction };
-    Vec3 tmpVec1{ AB.x * OA.y - OA.x * AB.y, OA.x * AB.z - AB.x * OA.z, AB.y * OA.z - OA.y * AB.z };
-    Vec3 tmpVec2{ AC.y * D.z - D.y * AC.z, D.x * AC.z - AC.x * D.z, AC.x * D.y - D.x * AC.y };
-    double determinant{ AB * tmpVec2 };
+    Vec3 tmpVec1{ BA.x * OA.y - OA.x * BA.y, OA.x * BA.z - BA.x * OA.z, BA.y * OA.z - OA.y * BA.z };
+    Vec3 tmpVec2{ CA.y * D.z - D.y * CA.z, D.x * CA.z - CA.x * D.z, CA.x * D.y - D.x * CA.y };
+    double determinant{ BA * tmpVec2 };
 
-    double t{ -(ACswitchXZ * tmpVec1) / determinant };
+    double t{ -(CAswitchXZ * tmpVec1) / determinant };
     if (t < tMin || t > tMax) return false;
     double gamma{ D.switchXZ() * tmpVec1 / determinant };
     if (gamma < 0 || gamma > 1) return false;
@@ -67,42 +68,115 @@ bool Triangle::hit(const Ray &ray, double tMin, double tMax, HitRec &rec) const 
     return true;
 }
 
-BVH::BVH(const std::vector<primPointer> &constPrims, size_t start, size_t end) {
-    auto prims{ constPrims };
-    int axis{ static_cast<int>(rand01() * 3.0) };
-    size_t primCount{ end - start };
+//BVH::BVH(const std::vector<primPointer> &constPrims, size_t start, size_t end) {
+//    auto prims{ constPrims };
+//    int axis{ static_cast<int>(rand01() * 3.0) };
+//    size_t primCount{ end - start };
+//
+//    // lambda expression
+//    auto lmbd = [axis](const primPointer a, const primPointer b) -> bool {
+//        return a->box.minBound[axis] < b->box.minBound[axis];
+//    };
+//
+//    // Subtree with one leaf node
+//    if (primCount == 1) left = right = prims[start];
+//    else if (primCount == 2) {
+//        // Subtree with two leaf node
+//        if (lmbd(prims[start], prims[start + 1])) {
+//            left = prims[start]; right = prims[start + 1];
+//        } else {
+//            left = prims[start + 1]; right = prims[start];
+//        }
+//    } else {
+//        // Other subtree
+//        std::sort(prims.begin() + start, prims.begin() + end, lmbd);
+//        size_t mid{ start + (primCount >> 1) };
+//        left = std::make_shared<BVH>(prims, start, mid);
+//        right = std::make_shared<BVH>(prims, mid, end);
+//    }
+//
+//    box = makeAABB();
+//}
 
-    // lambda expression
-    auto lmbd = [axis](const primPointer a, const primPointer b) -> bool {
-        return a->box.minBound[axis] < b->box.minBound[axis];
-    };
-
-    // Subtree with one leaf node
-    if (primCount == 1) left = right = prims[start];
+BVH::BVH(std::vector<primPointer> &prims, itrt start, itrt end) {
+    auto primCount{ end - start };
+    
+    if (primCount == 1) {
+        // Subtree with one leaf node
+        left = right = *start;
+        box = left->box;
+    }
     else if (primCount == 2) {
         // Subtree with two leaf node
-        if (lmbd(prims[start], prims[start + 1])) {
-            left = prims[start]; right = prims[start + 1];
-        } else {
-            left = prims[start + 1]; right = prims[start];
-        }
-    } else {
-        // Other subtree
-        std::sort(prims.begin() + start, prims.begin() + end, lmbd);
-        size_t mid{ start + (primCount >> 1) };
-        left = std::make_shared<BVH>(prims, start, mid);
-        right = std::make_shared<BVH>(prims, mid, end);
+        left = *start;
+        right = *(start + 1);
+        box = left->box + right->box;
     }
+    else {
+        // Build current BVH node box
+        using pP = primPointer;
+        auto pointerBoxSum = [](AABB &a, pP b) -> AABB { return a + b->box; };
+        box = std::accumulate(start, end, box, pointerBoxSum);
 
-    box = makeAABB();
+        // Choose which axis used for sorting as ref.(longestAxis)
+        int axis{ box.longestAxis() };
+        auto pointerCompare = [axis](pP a, pP b) -> bool { return a->centroid[axis] < b->centroid[axis]; };
+        std::sort(start, end, pointerCompare);
+
+        if (primCount == 3 || primCount == 4) {
+            // Nodes less than 4 would produce huge waste, so no need to use SAH
+            left = std::make_shared<BVH>(prims, start, start + 2);
+            right = std::make_shared<BVH>(prims, start + 2, end);
+        } else {
+            /*
+                SAH: Surface Area Heuristic
+                When evaluating potential partitions, the one that minimized
+                the surface area of the sum of volumes of the sub-trees is
+                almost always good.
+                https://www.cnblogs.com/lookof/p/3546320.html
+                http://15462.courses.cs.cmu.edu/fall2015/lecture/acceleration/slide_024
+
+                cost(A,B)   time cost in subtree A and B
+                    = p(A) * ¡Æt(i) in A  + p(B) * ¡Æt(j) in B
+                    = p(A) * n in A  + p(B) * m in B
+                    p(x): probability of hiting subtree x's AABB
+                    t(x): time cost in calulating hitting leaf node which assumed as constant
+            */
+
+            double minSAH{ INFINITY };
+            int bestIndex{ 0 };
+
+            // Prestore all "primCount-1" subtree-area possibilities of tree partition.
+            std::vector<double> areas(primCount), leftArea(primCount), rightArea(primCount);
+            std::transform(start, end, areas.begin(), [](pP a) -> double { return a->box.area; });
+            // partial_sum: (1, 2, 3, 4) to (1, 3, 6, 10), or (1, 1, 1, 1) to (1, 2, 3, 4)
+            std::partial_sum(areas.begin(), areas.end(), leftArea.begin());
+            std::partial_sum(areas.rbegin(), areas.rend(), rightArea.rbegin());
+            // Find which index has the best partition according to SAH.
+            for (int i = 0; i < primCount - 1; ++i) {
+                double currentTreeCost = (i + 1) * leftArea[i] + (primCount - i - 1) * rightArea[i + 1];
+                if (currentTreeCost < minSAH) {
+                    minSAH = currentTreeCost;
+                    bestIndex = i;
+                }
+            }
+            // Build subtree
+            left = std::make_shared<BVH>(prims, start, start + bestIndex + 1);
+            right = std::make_shared<BVH>(prims, start + bestIndex + 1, end);
+        }
+    }
 }
+
 
 bool BVH::hit(const Ray &ray, double tMin, double tMax, HitRec &rec) const {
     if (box.hit(ray, tMin, tMax)) {
         bool lHit{ left->hit(ray, tMin, tMax, rec) };
-        tMax = lHit ? rec.t : tMax;
-        bool rHit{ left == right ? false : right->hit(ray, tMin, tMax, rec)};
-        return lHit || rHit;
+        if (left == right) return lHit;
+        else {
+            tMax = lHit ? rec.t : tMax;
+            bool rHit{ right->hit(ray, tMin, tMax, rec) };
+            return lHit || rHit;
+        }
     } else return false;
 }
 

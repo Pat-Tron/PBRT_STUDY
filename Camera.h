@@ -49,7 +49,7 @@ struct Camera {
         orientation = target - position;
         distanceToFocus = orientation.length() * defocusScale;
     }
-    void randerLoop(const std::vector<primPointer> &prims);
+    void randerLoop(const std::vector<primPointer> &constPrims);
 
 private:
     double filmWidth{ 1.0 };

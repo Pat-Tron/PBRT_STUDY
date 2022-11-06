@@ -43,8 +43,8 @@ struct Vec3 {
     Vec3 &normalize() { *this *= 1.0 / length(); return *this; }
     Vec3 normalized() const { return *this * (1.0 / length());}
     Vec3 switchXZ() const { return Vec3(z, y, x); }
-    double max(double n) const { return std::max(std::max(std::max(x, y), z), n); }
-    double min(double n) const { return std::min(std::min(std::min(x, y), z), n); }
+    double max(double n = 0.0) const { return std::max(std::max(std::max(x, y), z), n); }
+    double min(double n = 0.0) const { return std::min(std::min(std::min(x, y), z), n); }
 };
 
 inline std::ostream &operator<<(std::ostream &os, const Vec3 &vec) {
