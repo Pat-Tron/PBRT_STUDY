@@ -1,8 +1,9 @@
-#include "Shape.h"
+#include "Primitive.h"
 #include <numeric>
 
 double Primitive::timeStart = 0.0;
 double Primitive::timeEnd = 0.0;
+bool Primitive::motionBlur = false;
 
 bool Sphere::hit(const Ray &ray, double tMin, double tMax, HitRec &rec) const {
     // Motion blur

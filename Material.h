@@ -3,13 +3,16 @@
 #include "utility.h"
 #include "Ray.h"
 #include "Color.h"
+#include "Textrue.h"
 
 struct Material;
-struct HitRec { double t{ 0.0 }; Vec3 p; Vec3 normal; Material *mat{ nullptr }; };
+struct HitRec { double t{ 0.0 }; Vec3 p; Vec3 normal; std::shared_ptr<Material> mat; };
 
 struct Material {
     Color albedo;
     double reflectance{ 1.0 };
+    std::shared_ptr<Textrue> texture;
+
     Material() = default;
     Material(const Color &a = 0xFFFFFF) : albedo(a) {}
     Vec3 reflect(const Vec3 &in, const Vec3 &normal) const { return in - 2 * (in * normal) * normal; }
@@ -24,6 +27,7 @@ struct Lambertian : public Material {
     virtual Ray scatter(const Ray &rayIn, const HitRec &rec) const override {
         return Ray(rec.p, randomSampleInHemiSphere(rec.normal), rayIn.time);
     }
+    operator std::shared_ptr<Material>() { return std::make_shared<Lambertian>(*this); }
 };
 
 struct Metal : public Material {
@@ -37,6 +41,7 @@ struct Metal : public Material {
         if (fuzz == 0.0) return Ray(rec.p, reflected, rayIn.time);
         else return Ray(rec.p, randomSampleInHemiSphere(reflected, false, fuzz), rayIn.time);
     }
+    operator std::shared_ptr<Material>() { return std::make_shared<Metal>(*this); }
 };
 
 struct Dielectric : public Material {
@@ -50,6 +55,7 @@ struct Dielectric : public Material {
     virtual Ray scatter(const Ray &rayIn, const HitRec &rec) const override {
         return Ray(rec.p, refract(rayIn.direction.normalized(), rec.normal), rayIn.time);
     }
+    operator std::shared_ptr<Material>() { return std::make_shared<Dielectric>(*this); }
 
 private:
     double criticalAngle{ asin(1.0 / 1.44) };  // ¡ŸΩÁΩ«

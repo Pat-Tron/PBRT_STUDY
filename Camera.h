@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Ray.h"
-#include "Shape.h"
+#include "Primitive.h"
 
 enum PRESET { P1K, P2K, P4K };
 
@@ -12,6 +12,7 @@ struct Resolution {
 
 struct Camera {
     // Film
+    // TODO: tuple
     const std::array<Resolution, 3> presets{
         Resolution(1920, 1080),
         Resolution(2560, 1440),

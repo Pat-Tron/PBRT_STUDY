@@ -19,6 +19,9 @@ void Camera::initialization() {
     leftDownCorner = filmCenter - right * filmWidth * 0.5 - up * filmHeight * 0.5;
 
     timeIntervel = timeEnd - timeStart;
+    Primitive::timeStart = timeStart;
+    Primitive::timeEnd = timeEnd;
+    Primitive::motionBlur = motionBlur;
 }
 
 Vec3 Camera::sampleInCircle() {
@@ -61,8 +64,8 @@ void Camera::randerLoop(const std::vector<primPointer> &constPrims) {
 
     std::vector<primPointer> prims{ constPrims };
     BVH bvh{ prims, prims.begin(), prims.end()};
-    std::cout << "BVH tree:\n" << std::endl;
-    bvh.printSelf();
+    //std::cout << "BVH tree:\n" << std::endl;
+    //bvh.printSelf();
 
     // Rendering loop
     std::cout << "\nRendering start." << std::endl;

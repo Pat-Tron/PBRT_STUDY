@@ -17,14 +17,15 @@ inline Color background(const Ray &ray, const Vec3 &up) {
 
 struct Primitive {
     static double timeStart, timeEnd;
-    Material *mat{ nullptr };
+    static bool motionBlur;
+    std::shared_ptr<Material> mat;
     Vec3 centroid;
     Vec3 velocity;
     bool moving{ false };
     AABB box;
     Primitive() = default;
-    Primitive(Material *mt, Vec3 c, Vec3 v = Vec3()) :
-        mat(mt), centroid(c), velocity(v), moving(v.length()) {}
+    Primitive(std::shared_ptr<Material> mt, Vec3 c, Vec3 v = Vec3()) :
+        mat(mt), centroid(c), velocity(v), moving(v.length()) { moving = moving && motionBlur; }
     virtual bool hit(const Ray &ray, double tMin, double tMax, HitRec &rec) const = 0;
     virtual AABB makeAABB() const = 0;
     virtual void printSelf() const = 0;
@@ -36,7 +37,7 @@ struct Sphere : public Primitive {
     double radius{ 1.0 };
     Vec3 center;
     Sphere() = default;
-    Sphere(double r, Vec3 c, Material *m, Vec3 v = Vec3()) :
+    Sphere(double r, Vec3 c, std::shared_ptr<Material> m, Vec3 v = Vec3()) :
         Primitive(m, c, v), radius(r), center(c) { box = makeAABB(); }
     bool hit(const Ray &ray, double tMin, double tMax, HitRec &rec) const override;
     AABB makeAABB() const override {
@@ -54,7 +55,7 @@ struct Triangle : public Primitive {
     Vec3 A, B, C, BA, CA, CAswitchXZ, normal;  // counterclockwise
 
     Triangle() = default;
-    Triangle(const Vec3 &a, const Vec3 &b, const Vec3 &c, Material *m) :
+    Triangle(const Vec3 &a, const Vec3 &b, const Vec3 &c, std::shared_ptr<Material> m) :
         Primitive(m, getCentroid(a, b, c)), A(a), B(b), C(c),
         BA(A - B), CA(A - C), CAswitchXZ(CA.switchXZ()) {
         normal = (BA ^ CA).normalized();
@@ -72,7 +73,7 @@ struct BVH : public Primitive {
     using itrt = std::vector<primPointer>::iterator;
     std::shared_ptr<Primitive> left, right;
     BVH() = default;
-    BVH(std::vector<primPointer> &constPrims, itrt start, itrt end);
+    BVH(std::vector<primPointer> &prims, itrt start, itrt end);
 
     bool hit(const Ray &ray, double tMin, double tMax, HitRec &rec) const override;
     AABB makeAABB() const override { return AABB(); }
