@@ -19,7 +19,9 @@ int main() {
     //camera.motionBlur = true;
     AABB::padding = 0.00001;
 
+    
     auto ground = Square(Lambertian(BLUE), 7);
+
     GeometryContainer geos = GeometryContainer() + ground +
         PrimBall(Lambertian(YELLOW),        1.0, Vec3(-1.5, 1, 1.5)) +
         PrimBall(Metal(RED),                1.0, Vec3(0.0, 1, 0.0)) +
@@ -31,8 +33,10 @@ int main() {
         PrimBall(Metal(ORANGE),             0.4, Vec3(0.8, 0.4, -2.7)) +
         RandomBalls(50, 0.2, ground);
 
-    GeometryContainer geos2 = GeometryContainer() + ground +
-        PrimBall(Lambertian(YELLOW), 1.2, Vec3(0, 1.2, 0));
+    CheckerTexture blackWhite(ConstantTexture(GRAY), ConstantTexture(WHITE), 0.5);
+    auto checkerGround = Square(Lambertian(blackWhite), 7);
+    GeometryContainer geos2 = GeometryContainer() + checkerGround +
+        PrimBall(Metal(blackWhite), 1.2, Vec3(0, 1.2, 0));
     
     camera.randerLoop(geos2.prims);
 

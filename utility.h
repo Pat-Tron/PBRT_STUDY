@@ -12,7 +12,9 @@ enum PALETTE : int {
     GREEN = 0x50BF94,
     LIGHT_GREEN = 0xadce33,
     WHITE = 0xffffff,
-    PINK = 0xcd97f9
+    PINK = 0xcd97f9,
+    BLACK = 0x000000,
+    GRAY = 0x444444,
 };
 
 inline double rand01() {

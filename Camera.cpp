@@ -46,12 +46,13 @@ Color Camera::render(const Ray &ray, const BVH &bvh) const {
     HitRec rec;
     static int depth{ 0 };
     if (bvh.hit(ray, 0.0000001, 1e10, rec)) {
+        Color albedo{ rec.mat->texture->v(0.0, 0.0, rec.p) };
         if (depth < maxDepth) {
             ++depth;
-            return render(rec.mat->scatter(ray, rec), bvh) * rec.mat->albedo * rec.mat->reflectance;
+            return render(rec.mat->scatter(ray, rec), bvh) * albedo * rec.mat->reflectance;
         } else {
             depth = 0;
-            return rec.mat->albedo;
+            return albedo;
         }
     } else {
         depth = 0;

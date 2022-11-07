@@ -5,10 +5,13 @@
 struct Geometry {
     std::vector<primPointer> prims;
     Geometry() = default;
+    Geometry(const std::vector<primPointer> &psp) : prims(psp) {}
     //operator std::shared_ptr<Geometry>() { return std::make_shared<Geometry>(*this); }
 };
 
 struct GeometryContainer : public Geometry {
+    GeometryContainer() = default;
+    GeometryContainer(std::shared_ptr<Geometry> gp) : Geometry(gp->prims) {}
     GeometryContainer &operator+(std::shared_ptr<Geometry> gp) {
         for (auto primp : gp->prims) prims.push_back(primp);
         return *this;

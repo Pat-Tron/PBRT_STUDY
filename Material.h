@@ -3,18 +3,18 @@
 #include "utility.h"
 #include "Ray.h"
 #include "Color.h"
-#include "Textrue.h"
+#include "Texture.h"
 
 struct Material;
 struct HitRec { double t{ 0.0 }; Vec3 p; Vec3 normal; std::shared_ptr<Material> mat; };
 
 struct Material {
-    Color albedo;
     double reflectance{ 1.0 };
-    std::shared_ptr<Textrue> texture;
+    std::shared_ptr<Texture> texture;
 
     Material() = default;
-    Material(const Color &a = 0xFFFFFF) : albedo(a) {}
+    Material(std::shared_ptr<Texture> tp) : texture(tp) {}
+    Material(const Color &a = 0xFFFFFF) : texture(std::make_shared<ConstantTexture>(a)) {}
     Vec3 reflect(const Vec3 &in, const Vec3 &normal) const { return in - 2 * (in * normal) * normal; }
     Vec3 randomSampleInHemiSphere(const Vec3 &normal, bool uniform = true, double range = 1.0) const;
     virtual Ray scatter(const Ray &rayIn, const HitRec &rec) const = 0;
@@ -23,6 +23,7 @@ struct Material {
 struct Lambertian : public Material {
     Lambertian() = default;
     Lambertian(const Color &a) : Material(a) {}
+    Lambertian(std::shared_ptr<Texture> tp) : Material(tp) {}
 
     virtual Ray scatter(const Ray &rayIn, const HitRec &rec) const override {
         return Ray(rec.p, randomSampleInHemiSphere(rec.normal), rayIn.time);
@@ -35,6 +36,7 @@ struct Metal : public Material {
 
     Metal() = default;
     Metal(const Color &a, double f = 0.0) : Material(a), fuzz(f) {}
+    Metal(std::shared_ptr<Texture> tp, double f = 0.0) : Material(tp), fuzz(f) {}
 
     virtual Ray scatter(const Ray &rayIn, const HitRec &rec) const override {
         Vec3 reflected{ reflect(rayIn.direction.normalized(), rec.normal)};
@@ -48,10 +50,11 @@ struct Dielectric : public Material {
     // GLASS, Index of Refraction
     double IOR{ 1.44 }, IORR{ 1.0 / 1.44 };  // Reciprocal of IOR
     Dielectric() = default;
+    Dielectric(std::shared_ptr<Texture> tp, double ior = 1.44) :
+        Material(tp), IOR(ior), IORR(1.0 / ior), criticalAngle(asin(1.0 / IOR)) {}
     Dielectric(const Color &a, double ior = 1.44) :
-        Material(a), IOR(ior), IORR(1.0 / ior) {
-        criticalAngle = asin(1.0 / IOR);
-    }
+        Material(a), IOR(ior), IORR(1.0 / ior), criticalAngle(asin(1.0 / IOR)) {}
+
     virtual Ray scatter(const Ray &rayIn, const HitRec &rec) const override {
         return Ray(rec.p, refract(rayIn.direction.normalized(), rec.normal), rayIn.time);
     }
