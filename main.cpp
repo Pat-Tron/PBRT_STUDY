@@ -1,9 +1,11 @@
 // Start with RayTracing in One Weekend.
 
-#include "Output.h"
+#include "imageIO.h"
 #include "Camera.h"
 #include "Geometry.h"
 #include <ctime>
+
+void timeInfo(clock_t globalTimeStart);
 
 int main() {
     clock_t globalTimeStart = clock();
@@ -44,14 +46,17 @@ int main() {
     
     cameraTest.randerLoop(geos2.prims);
     //camera.randerLoop(geos2.prims);
+    // Output
+    outputPic("image", PIC_FORMAT::QOI, cameraTest.pixels);
 
+    timeInfo(globalTimeStart);
+    return 0;
+}
+
+void timeInfo(clock_t globalTimeStart) {
     clock_t globalTimeEnd = clock();
     clock_t seconds{ globalTimeEnd - globalTimeStart };
     std::cout << "\nTotal time spending: "
         << seconds / 60 / 1000 << "m "
         << seconds / 1000 % 60 + (seconds % 1000 / 1000.0) << "s.\n\n";
-
-    // Output
-    outputPic("image", PIC_FORMAT::QOI, cameraTest.pixels);
-    return 0;
 }

@@ -2,6 +2,7 @@
 #include <random>
 
 constexpr double PI{ 3.141592653589793238462643 };
+constexpr double PI_RECIPROCAL{ 1.0 / PI };
 
 enum PALETTE : int {
     YELLOW = 0xffe815,

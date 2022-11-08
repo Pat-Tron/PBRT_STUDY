@@ -4,7 +4,7 @@
 #include <iostream>
 #include <fstream>
 
-#include "Output.h"
+#include "imageIO.h"
 
 void outputPic(
     const std::string &filename,

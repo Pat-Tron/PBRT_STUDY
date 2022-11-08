@@ -29,6 +29,7 @@ struct Primitive {
     virtual bool hit(const Ray &ray, double tMin, double tMax, HitRec &rec) const = 0;
     virtual AABB makeAABB() const = 0;
     virtual void printSelf() const = 0;
+    virtual void uv(const Vec3 &p, double &u, double &v) const = 0;
 };
 
 using primPointer = std::shared_ptr<Primitive>;
@@ -49,6 +50,12 @@ struct Sphere : public Primitive {
         return abT0 + abT1;
     }
     virtual void printSelf() const override { std::cout << "Sphere"; }
+    virtual void uv(const Vec3 &p, double &u, double &v) const override {
+        double phi{ atan2(p.z, p.x) };
+        double theta{ asin(p.y) };
+        u = 1.0 - (phi + PI) * PI_RECIPROCAL * 0.5;
+        v = (theta + PI * 0.5) * PI_RECIPROCAL;
+    }
 };
 
 struct Triangle : public Primitive {
@@ -66,6 +73,7 @@ struct Triangle : public Primitive {
     bool hit(const Ray &ray, double tMin, double tMax, HitRec &rec) const override;
     AABB makeAABB() const override { return AABB(minVec3(minVec3(A, B), C), maxVec3(maxVec3(A, B), C)); }
     virtual void printSelf() const override { std::cout << "Triangle"; }
+    virtual void uv(const Vec3 &p, double &u, double &v) const override {}
 };
 
 struct BVH : public Primitive {
@@ -78,4 +86,5 @@ struct BVH : public Primitive {
     bool hit(const Ray &ray, double tMin, double tMax, HitRec &rec) const override;
     AABB makeAABB() const override { return AABB(); }
     virtual void printSelf() const override;
+    virtual void uv(const Vec3 &p, double &u, double &v) const override {}
 };

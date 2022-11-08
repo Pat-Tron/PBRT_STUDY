@@ -11,6 +11,9 @@ bool Sphere::hit(const Ray &ray, double tMin, double tMax, HitRec &rec) const {
     if (moving) actualCenter = center + velocity * ray.time;
     else actualCenter = center;
 
+    
+    
+
     /*
         p(t): point at Ray of parameter "t"
             -> p(t) = o + td
@@ -37,6 +40,10 @@ bool Sphere::hit(const Ray &ray, double tMin, double tMax, HitRec &rec) const {
         rec.p = ray.pointAtT(root);
         rec.normal = (rec.p - actualCenter) / radius;
         rec.mat = mat;
+
+        // Move center to origin, and make sphere unit size.
+        uv((rec.p - center) / radius, rec.u, rec.v);
+
         return true;
     }
 }

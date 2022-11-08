@@ -6,7 +6,12 @@
 #include "Texture.h"
 
 struct Material;
-struct HitRec { double t{ 0.0 }; Vec3 p; Vec3 normal; std::shared_ptr<Material> mat; };
+struct HitRec {
+    double t{ 0.0 };
+    Vec3 p, normal;
+    double u{ 0.0 }, v{ 0.0 };
+    std::shared_ptr<Material> mat;
+};
 
 struct Material {
     double reflectance{ 1.0 };
