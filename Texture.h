@@ -105,3 +105,15 @@ inline double PerlinNoise::smoothstep(double a0, double a1, double w) const {
     // https://en.wikipedia.org/wiki/Hermite_polynomials
     return (a1 - a0) * ((w * (w * 6.0 - 15.0) + 10.0) * w * w * w) + a0;
 }
+
+struct MarbleNoise : public Texture {
+    std::shared_ptr<Texture> noise;
+    double amplitude{ 1.0 };
+    MarbleNoise() = default;
+    MarbleNoise(double a, std::shared_ptr<Texture> n, double s = 1.0, Vec3 offset = Vec3()) :
+        Texture(s, offset), amplitude(a), noise(n) {}
+    virtual Color v(double u, double v, const Vec3 &p) const override {
+        return Color(sin(scale * p.z + amplitude * noise->v(0, 0, p).R) * 0.5 + 0.5);
+    }
+    operator std::shared_ptr<Texture>() { return std::make_shared<MarbleNoise>(*this); }
+};

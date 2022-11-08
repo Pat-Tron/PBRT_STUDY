@@ -37,9 +37,10 @@ int main() {
 
     CheckerTexture checker(ConstantTexture(PURPLE), ConstantTexture(YELLOW), 0.5);
     PerlinNoise noise(0.5, true, 5);
-    auto checkerGround = Square(Metal(checker), 7);
+    MarbleNoise marble(2.0, PerlinNoise(1.0, false, 5), 0.5);
+    auto checkerGround = Square(Metal(marble), 7);
     GeometryContainer geos2 = GeometryContainer() + checkerGround +
-        PrimBall(Lambertian(noise), 1.2, Vec3(0, 1.0, 0));
+        PrimBall(Lambertian(noise), 1.2, Vec3(0, 1.2, 0));
     
     cameraTest.randerLoop(geos2.prims);
     //camera.randerLoop(geos2.prims);
