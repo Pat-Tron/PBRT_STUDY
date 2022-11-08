@@ -12,7 +12,7 @@ struct Ray {
     Ray() = default;
     Ray(const Vec3 &o, const Vec3 &d, const double &t = -1.0) :
         origin(o), direction(d), directionReciprocal(d.reciprocal()),
-        xPositive(d.x > 0), yPositive(d.y > 0), zPositive(d.z > 0),
+        xPositive(d.x >= 0), yPositive(d.y >= 0), zPositive(d.z >= 0),
         time(t) {}
     Vec3 pointAtT(double t) const { return origin + direction * t; }
 };
