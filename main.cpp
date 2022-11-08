@@ -13,12 +13,14 @@ int main() {
     camera.focal = 3.0;
     camera.antialiasing = 5;
     camera.maxDepth = 5;
-    //camera.aperture = 0.2;
+    camera.aperture = 0.2;
     camera.defocusScale = 0.9;
-    camera.faceAt(Vec3(0.0, 0.8, 0.0));
-    //camera.motionBlur = true;
-    AABB::padding = 0.00001;
-
+    camera.faceAt = Vec3(0.0, 0.8, 0.0);
+    camera.motionBlur = true;
+    
+    Camera cameraTest(P1K, 0.5);
+    cameraTest.position = Vec3(0, 30, 10);
+    cameraTest.focal = 3.0;
     
     auto ground = Square(Lambertian(BLUE), 7);
 
@@ -33,12 +35,13 @@ int main() {
         PrimBall(Metal(ORANGE),             0.4, Vec3(0.8, 0.4, -2.7)) +
         RandomBalls(50, 0.2, ground);
 
-    CheckerTexture blackWhite(ConstantTexture(GRAY), ConstantTexture(WHITE), 0.5);
-    auto checkerGround = Square(Lambertian(blackWhite), 7);
-    GeometryContainer geos2 = GeometryContainer() + checkerGround +
-        PrimBall(Metal(blackWhite), 1.2, Vec3(0, 1.2, 0));
+    CheckerTexture checker(ConstantTexture(PURPLE), ConstantTexture(YELLOW), 0.5);
+    PerlinNoise noise(1.0);
+    auto checkerGround = Square(Lambertian(noise), 6);
+    GeometryContainer geos2 = GeometryContainer() + checkerGround;
     
-    camera.randerLoop(geos2.prims);
+    cameraTest.randerLoop(geos2.prims);
+    //camera.randerLoop(geos2.prims);
 
     clock_t globalTimeEnd = clock();
     clock_t seconds{ globalTimeEnd - globalTimeStart };
@@ -47,6 +50,6 @@ int main() {
         << seconds / 1000 % 60 + (seconds % 1000 / 1000.0) << "s.\n\n";
 
     // Output
-    outputPic("image", PIC_FORMAT::QOI, camera.pixels);
+    outputPic("image", PIC_FORMAT::QOI, cameraTest.pixels);
     return 0;
 }

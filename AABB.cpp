@@ -1,6 +1,6 @@
 #include "AABB.h"
 
-double AABB::padding = 0.0;
+double AABB::padding = 0.00001;
 
 bool AABB::hit(const Ray &ray, double tMin, double tMax) const {
     double t0x{ (minBound.x - ray.origin.x) * ray.directionReciprocal.x };

@@ -3,6 +3,9 @@
 
 void Camera::initialization() {
     // Right-hand coordinate system
+    orientation = faceAt - position;
+    distanceToFocus = orientation.length() * defocusScale;
+
     orientation.normalize();
     Vec3 globalUp{ 0.0, 1.0, 0.0 };
     right = (orientation ^ globalUp).normalized();

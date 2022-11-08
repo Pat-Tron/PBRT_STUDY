@@ -19,7 +19,8 @@ struct Camera {
         Resolution(3840, 2160)
     };
     Vec3 orientation{ 0.0, 0.0, 1.0 };
-    Vec3 position{ 0.0, 0.0, 0.0 };    
+    Vec3 position;
+    Vec3 faceAt;
     int resWidth{ 500 };
     int resHeight{ 500 };
 
@@ -29,8 +30,8 @@ struct Camera {
     double defocusScale{ 1.0 };
 
     // Render
-    int antialiasing{ 2 };
-    int maxDepth{ 5 };
+    int antialiasing{ 1 };
+    int maxDepth{ 0 };
 
     // Motion blur
     bool motionBlur{ false };
@@ -46,10 +47,6 @@ struct Camera {
         resWidth(static_cast<int>(presets[prst].width * zoom)),
         resHeight(static_cast<int>(presets[prst].height * zoom)),
         pixels(resHeight, std::vector<Color>(resWidth)) {}
-    void faceAt(const Vec3 &target) {
-        orientation = target - position;
-        distanceToFocus = orientation.length() * defocusScale;
-    }
     void randerLoop(const std::vector<primPointer> &constPrims);
 
 private:
