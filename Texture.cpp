@@ -2,6 +2,27 @@
 
 Color PerlinNoise::v(double u, double v, const Vec3 &p) const {
     Vec3 P{ (p + offset) * scale };
+
+    // Fractal, or turbulence
+    double color{ plainPerlin(P) };
+    for (int i = 1; i <= octaves; ++i) {
+        color += pow(roughness, i) * plainPerlin(P * lacunarity * i);
+    }
+
+    // Fit to [-1, 1]
+    // 2.5: ¾­ÑéÖµ
+    color *= normalizeFactor * 2.5;
+
+    // Clamp
+    color = color < -1.0 ? -1.0 : (color <= 1.0 ? color : 1.0);
+    
+    if (fold) {
+        color = color < 0.0 ? -color : color;
+        return Color(color);
+    } else return Color(color * 0.5 + 0.5);
+}
+
+double PerlinNoise::plainPerlin(const Vec3 &p) const {
     /*
         Corner notation inside specific int lattice
 
@@ -20,9 +41,9 @@ Color PerlinNoise::v(double u, double v, const Vec3 &p) const {
          ¡ý z
 
     */
-    
+
     // 8 lattice corners
-    Vec3 A{ P.vecFloor() };
+    Vec3 A{ p.vecFloor() };
     Vec3 B{ A + Vec3(1.0, 0.0, 0.0) };
     Vec3 C{ A + Vec3(1.0, 0.0, 1.0) };
     Vec3 D{ A + Vec3(0.0, 0.0, 1.0) };
@@ -32,18 +53,18 @@ Color PerlinNoise::v(double u, double v, const Vec3 &p) const {
     Vec3 H{ A + Vec3(0.0, 1.0, 1.0) };
 
     // dotX = XP * gradiant
-    double dotA{ (P - A) * randomGradiant(A) };
-    double dotB{ (P - B) * randomGradiant(B) };
-    double dotC{ (P - C) * randomGradiant(C) };
-    double dotD{ (P - D) * randomGradiant(D) };
-    double dotE{ (P - E) * randomGradiant(E) };
-    double dotF{ (P - F) * randomGradiant(F) };
-    double dotG{ (P - G) * randomGradiant(G) };
-    double dotH{ (P - H) * randomGradiant(H) };
+    double dotA{ (p - A) * randomGradiant(A) };
+    double dotB{ (p - B) * randomGradiant(B) };
+    double dotC{ (p - C) * randomGradiant(C) };
+    double dotD{ (p - D) * randomGradiant(D) };
+    double dotE{ (p - E) * randomGradiant(E) };
+    double dotF{ (p - F) * randomGradiant(F) };
+    double dotG{ (p - G) * randomGradiant(G) };
+    double dotH{ (p - H) * randomGradiant(H) };
 
     // lattice uvw
-    double ul{ P.x - A.x }, vl{ P.y - A.y }, wl{ P.z - A.z };
-    
+    double ul{ p.x - A.x }, vl{ p.y - A.y }, wl{ p.z - A.z };
+
     double interpolatedYA{ smoothstep(dotA, dotE, vl) };
     double interpolatedYB{ smoothstep(dotB, dotF, vl) };
     double interpolatedYC{ smoothstep(dotC, dotG, vl) };
@@ -51,6 +72,7 @@ Color PerlinNoise::v(double u, double v, const Vec3 &p) const {
     double interpolatedZAD{ smoothstep(interpolatedYA, interpolatedYD, wl) };
     double interpolatedZBC{ smoothstep(interpolatedYB, interpolatedYC, wl) };
     double final{ smoothstep(interpolatedZAD, interpolatedZBC, ul) };
-    // final : [-sqrt(2)/2, -sqrt(2)/2], fit to [0, 1]
-    return Color(final * 0.70711 + 0.5);
+
+    // final : [-sqrt(2)/2, -sqrt(2)/2], fit to [-1, 1]
+    return final * 1.414;
 }

@@ -45,8 +45,19 @@ struct PerlinNoise : public Texture {
     std::array<int, 256> permutationY{ 0 };
     std::array<int, 256> permutationZ{ 0 };
 
+    // Turbulence
+    // Inspired by Houdini noise fractal parameters. Not sure it's correct.
+    int octaves{ 0 };  // fractal depth
+    double lacunarity{ 0.0 };  // frequency multiplication
+    double roughness{ 0.5 };  // Attenuation or falloff
+    double normalizeFactor{ 0.0 };
+    bool fold{ false };
+
     PerlinNoise() = default;
-    PerlinNoise(double s, Vec3 o = Vec3()) : Texture(s, o) {
+    PerlinNoise(double s, bool f = false, int o = 0, double l = 2.0, double r = 0.5, Vec3 offset = Vec3()) :
+        Texture(s, offset), octaves(o), lacunarity(l), roughness(r), fold(f) {
+        normalizeFactor = (1.0 - roughness) / (1.0 - pow(roughness, octaves + 1.0));
+
         // URGB: Uniform Random Bit Generator
         static std::default_random_engine URGB1(1), URGB2(2), URGB3(3);
         for (int i{ 0 }; i < 256; ++i) {
@@ -65,6 +76,7 @@ struct PerlinNoise : public Texture {
 private:
     Vec3 randomGradiant(const Vec3 &p) const;
     double randomDouble(const Vec3 &p) const;
+    double plainPerlin(const Vec3 &p) const;
     double smoothstep(double a0, double a1, double w) const;
 };
 

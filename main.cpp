@@ -16,7 +16,7 @@ int main() {
     camera.aperture = 0.2;
     camera.defocusScale = 0.9;
     camera.faceAt = Vec3(0.0, 0.8, 0.0);
-    camera.motionBlur = true;
+    //camera.motionBlur = true;
     
     Camera cameraTest(P1K, 0.5);
     cameraTest.position = Vec3(0, 30, 10);
@@ -36,9 +36,10 @@ int main() {
         RandomBalls(50, 0.2, ground);
 
     CheckerTexture checker(ConstantTexture(PURPLE), ConstantTexture(YELLOW), 0.5);
-    PerlinNoise noise(1.0);
-    auto checkerGround = Square(Lambertian(noise), 6);
-    GeometryContainer geos2 = GeometryContainer() + checkerGround;
+    PerlinNoise noise(0.5, true, 5);
+    auto checkerGround = Square(Metal(checker), 7);
+    GeometryContainer geos2 = GeometryContainer() + checkerGround +
+        PrimBall(Lambertian(noise), 1.2, Vec3(0, 1.0, 0));
     
     cameraTest.randerLoop(geos2.prims);
     //camera.randerLoop(geos2.prims);
