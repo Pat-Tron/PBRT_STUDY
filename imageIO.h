@@ -1,5 +1,4 @@
 #pragma once
-
 #include <vector>
 #include <string>
 #include "Color.h"
@@ -11,3 +10,5 @@ void outputPic(
     const PIC_FORMAT &f,
     const std::vector<std::vector<Color>> &pixels
 );
+
+void inputQOI(const std::string &filename, std::vector<std::vector<Color>> &pixels);

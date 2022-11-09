@@ -1,6 +1,6 @@
 #include "Texture.h"
 
-Color PerlinNoise::v(double u, double v, const Vec3 &p) const {
+Color PerlinNoise::v(const Vec2 &uv, const Vec3 &p) const {
     Vec3 P{ (p + offset) * scale };
 
     // Fractal, or turbulence

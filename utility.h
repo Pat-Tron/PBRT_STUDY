@@ -1,5 +1,7 @@
 #pragma once
 #include <random>
+#include <ctime>
+#include <iostream>
 
 constexpr double PI{ 3.141592653589793238462643 };
 constexpr double PI_RECIPROCAL{ 1.0 / PI };
@@ -24,4 +26,12 @@ inline double rand01() {
     static std::default_random_engine generator;
     static std::uniform_real_distribution<double> distr(0.0, 1.0);
     return distr(generator);
+}
+
+inline void timeInfo(clock_t globalTimeStart) {
+    clock_t globalTimeEnd = clock();
+    clock_t seconds{ globalTimeEnd - globalTimeStart };
+    std::cout << "\nTotal time spending: "
+        << seconds / 60 / 1000 << "m "
+        << seconds / 1000 % 60 + (seconds % 1000 / 1000.0) << "s.\n\n";
 }

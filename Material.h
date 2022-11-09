@@ -9,7 +9,7 @@ struct Material;
 struct HitRec {
     double t{ 0.0 };
     Vec3 p, normal;
-    double u{ 0.0 }, v{ 0.0 };
+    Vec2 uv;
     std::shared_ptr<Material> mat;
 };
 

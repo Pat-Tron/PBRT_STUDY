@@ -47,7 +47,7 @@ struct Camera {
         resWidth(static_cast<int>(presets[prst].width * zoom)),
         resHeight(static_cast<int>(presets[prst].height * zoom)),
         pixels(resHeight, std::vector<Color>(resWidth)) {}
-    void randerLoop(const std::vector<primPointer> &constPrims);
+    const std::vector<std::vector<Color>> &randerLoop(const std::vector<primPointer> &constPrims);
 
 private:
     double filmWidth{ 1.0 };

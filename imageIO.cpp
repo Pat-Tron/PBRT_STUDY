@@ -1,9 +1,7 @@
 #define QOI_IMPLEMENTATION
 #include "qoi.h"
-
 #include <iostream>
 #include <fstream>
-
 #include "imageIO.h"
 
 void outputPic(
@@ -52,4 +50,22 @@ void outputPic(
         qoi_write((filename + ".qoi").c_str(), rgb_pixels, &desc);
         delete[]rgb_pixels;
     }
+}
+
+void inputQOI(const std::string &filename, std::vector<std::vector<Color>> &pixels) {
+    qoi_desc desc;
+    void *rawData = qoi_read((filename + ".qoi").c_str(), &desc, 3);
+    unsigned char *pixelData = static_cast<unsigned char*>(rawData);
+    pixels = std::vector<std::vector<Color>>(desc.height, std::vector<Color>(desc.width));
+
+    for (int row{ 0 }; row < desc.height; ++row) {
+        for (int col{ 0 }; col < desc.width; ++col) {
+            pixels[row][col] = Color(
+                pixelData[row * desc.width * 3 + col * 3] / 255.99,
+                pixelData[row * desc.width * 3 + col * 3 + 1] / 255.99,
+                pixelData[row * desc.width * 3 + col * 3 + 2] / 255.99
+            );
+        }
+    }
+    free(rawData);
 }

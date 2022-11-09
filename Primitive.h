@@ -29,7 +29,7 @@ struct Primitive {
     virtual bool hit(const Ray &ray, double tMin, double tMax, HitRec &rec) const = 0;
     virtual AABB makeAABB() const = 0;
     virtual void printSelf() const = 0;
-    virtual void uv(const Vec3 &p, double &u, double &v) const = 0;
+    virtual Vec2 uv(const Vec3 &p) const = 0;
 };
 
 using primPointer = std::shared_ptr<Primitive>;
@@ -50,20 +50,25 @@ struct Sphere : public Primitive {
         return abT0 + abT1;
     }
     virtual void printSelf() const override { std::cout << "Sphere"; }
-    virtual void uv(const Vec3 &p, double &u, double &v) const override {
+    virtual Vec2 uv(const Vec3 &p) const override {
         double phi{ atan2(p.z, p.x) };
         double theta{ asin(p.y) };
-        u = 1.0 - (phi + PI) * PI_RECIPROCAL * 0.5;
-        v = (theta + PI * 0.5) * PI_RECIPROCAL;
+        return Vec2(1.0 - (phi + PI) * PI_RECIPROCAL * 0.5, 1.0 - (theta + PI * 0.5) * PI_RECIPROCAL);
     }
 };
 
 struct Triangle : public Primitive {
     Vec3 A, B, C, BA, CA, CAswitchXZ, normal;  // counterclockwise
+    Vec2 uvA, uvB, uvC;
 
     Triangle() = default;
-    Triangle(const Vec3 &a, const Vec3 &b, const Vec3 &c, std::shared_ptr<Material> m) :
-        Primitive(m, getCentroid(a, b, c)), A(a), B(b), C(c),
+    Triangle(
+        const Vec3 &a, const Vec3 &b, const Vec3 &c,
+        const Vec2 &uva, const Vec2 &uvb, const Vec2 &uvc,
+        std::shared_ptr<Material> m
+    ) :
+        Primitive(m, getCentroid(a, b, c)),
+        A(a), B(b), C(c), uvA(uva), uvB(uvb), uvC(uvc),
         BA(A - B), CA(A - C), CAswitchXZ(CA.switchXZ()) {
         normal = (BA ^ CA).normalized();
         box = makeAABB();
@@ -73,7 +78,10 @@ struct Triangle : public Primitive {
     bool hit(const Ray &ray, double tMin, double tMax, HitRec &rec) const override;
     AABB makeAABB() const override { return AABB(minVec3(minVec3(A, B), C), maxVec3(maxVec3(A, B), C)); }
     virtual void printSelf() const override { std::cout << "Triangle"; }
-    virtual void uv(const Vec3 &p, double &u, double &v) const override {}
+    virtual Vec2 uv(const Vec3 &p) const override {
+        // p: Centrobaric Coordinate
+        return uvA * p.x + uvB * p.y +uvC * p.z;
+    }
 };
 
 struct BVH : public Primitive {
@@ -86,5 +94,5 @@ struct BVH : public Primitive {
     bool hit(const Ray &ray, double tMin, double tMax, HitRec &rec) const override;
     AABB makeAABB() const override { return AABB(); }
     virtual void printSelf() const override;
-    virtual void uv(const Vec3 &p, double &u, double &v) const override {}
+    virtual Vec2 uv(const Vec3 &p) const override { return Vec2(); }
 };

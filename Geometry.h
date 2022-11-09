@@ -30,8 +30,9 @@ struct Square : public Geometry {
         Vec3 B { Vec3( xLen * 0.5, 0.0, -zLen * 0.5) + center };
         Vec3 C { Vec3(-xLen * 0.5, 0.0, -zLen * 0.5) + center };
         Vec3 D { Vec3(-xLen * 0.5, 0.0,  zLen * 0.5) + center };
-        prims.push_back(std::make_shared<Triangle>(Triangle(A, B, D, mat)));
-        prims.push_back(std::make_shared<Triangle>(Triangle(B, C, D, mat)));
+        Vec2 uvA(1.0, 0.0), uvB(1.0, 1.0), uvC(0.0, 1.0), uvD(0.0, 0.0);
+        prims.push_back(std::make_shared<Triangle>(Triangle(A, B, D, uvA, uvB, uvD, mat)));
+        prims.push_back(std::make_shared<Triangle>(Triangle(B, C, D, uvB, uvC, uvD, mat)));
     }
     Square(std::shared_ptr<Material> mat, double len, Vec3 center = Vec3()) : Square(mat, len, len, center) {}
     operator std::shared_ptr<Geometry>() { return std::make_shared<Square>(*this); }

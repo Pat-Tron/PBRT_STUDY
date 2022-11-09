@@ -1,6 +1,6 @@
 #pragma once
 #include <iostream>
-#include "Vec3.h"
+#include "Vector.h"
 
 struct Color {
     double R{ 0.0 }, G{ 0.0 }, B{ 0.0 };

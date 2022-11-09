@@ -42,7 +42,7 @@ bool Sphere::hit(const Ray &ray, double tMin, double tMax, HitRec &rec) const {
         rec.mat = mat;
 
         // Move center to origin, and make sphere unit size.
-        uv((rec.p - center) / radius, rec.u, rec.v);
+        rec.uv = uv((rec.p - center) / radius);
 
         return true;
     }
@@ -73,6 +73,7 @@ bool Triangle::hit(const Ray &ray, double tMin, double tMax, HitRec &rec) const 
     rec.p = ray.pointAtT(t);
     rec.normal = normal;
     rec.mat = mat;
+    rec.uv = uv(Vec3(1.0 - gamma - beta, beta, gamma));
     return true;
 }
 

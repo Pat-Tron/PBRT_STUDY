@@ -49,7 +49,7 @@ Color Camera::render(const Ray &ray, const BVH &bvh) const {
     HitRec rec;
     static int depth{ 0 };
     if (bvh.hit(ray, 0.0000001, 1e10, rec)) {
-        Color albedo{ rec.mat->texture->v(0.0, 0.0, rec.p) };
+        Color albedo{ rec.mat->texture->v(rec.uv, rec.p) };
         if (depth < maxDepth) {
             ++depth;
             return render(rec.mat->scatter(ray, rec), bvh) * albedo * rec.mat->reflectance;
@@ -63,7 +63,7 @@ Color Camera::render(const Ray &ray, const BVH &bvh) const {
     }
 }
 
-void Camera::randerLoop(const std::vector<primPointer> &constPrims) {
+const std::vector<std::vector<Color>> &Camera::randerLoop(const std::vector<primPointer> &constPrims) {
     initialization();
 
     std::vector<primPointer> prims{ constPrims };
@@ -93,4 +93,5 @@ void Camera::randerLoop(const std::vector<primPointer> &constPrims) {
         }
     }
     std::cout << "\nRendering finished" << std::endl;
+    return pixels;
 }

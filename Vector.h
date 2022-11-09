@@ -62,3 +62,15 @@ inline Vec3 minVec3(const Vec3 &v1, const Vec3 &v2) {
 inline Vec3 maxVec3(const Vec3 &v1, const Vec3 &v2) {
     return Vec3(v1.x < v2.x ? v2.x : v1.x, v1.y < v2.y ? v2.y : v1.y, v1.z < v2.z ? v2.z : v1.z);
 }
+
+struct Vec2 {
+    double u{ 0.0 }, v{ 0.0 };
+
+    Vec2() = default;
+    Vec2(double _u, double _v) : u(_u), v(_v) {}
+    Vec2(const Vec2 &vec) : u(vec.u), v(vec.v) {}
+
+    Vec2 operator+(const Vec2 &vec) const { return Vec2(u + vec.u, v + vec.v); }
+    Vec2 operator-(const Vec2 &vec) const { return Vec2(u - vec.u, v - vec.v); }
+    Vec2 operator*(const double &n) const { return Vec2(u * n, v * n); }
+};

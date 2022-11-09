@@ -3,9 +3,6 @@
 #include "imageIO.h"
 #include "Camera.h"
 #include "Geometry.h"
-#include <ctime>
-
-void timeInfo(clock_t globalTimeStart);
 
 int main() {
     clock_t globalTimeStart = clock();
@@ -40,23 +37,17 @@ int main() {
     CheckerTexture checker(ConstantTexture(PURPLE), ConstantTexture(YELLOW), 0.5);
     PerlinNoise noise(0.5, true, 5);
     MarbleNoise marble(2.0, PerlinNoise(1.0, false, 5), 0.5);
-    auto checkerGround = Square(Metal(marble), 7);
-    GeometryContainer geos2 = GeometryContainer() + checkerGround +
-        PrimBall(Lambertian(noise), 1.2, Vec3(0, 1.2, 0));
+    ImageTexture Earth("resource/earthTexture");
+
+    auto ground2 = Square(Metal(Earth), 7);
+    GeometryContainer geos2 = GeometryContainer() + ground2 +
+        PrimBall(Lambertian(Earth), 1.2, Vec3(0, 1.2, 0));
     
-    cameraTest.randerLoop(geos2.prims);
-    //camera.randerLoop(geos2.prims);
-    // Output
-    outputPic("image", PIC_FORMAT::QOI, cameraTest.pixels);
+    //auto pixels = cameraTest.randerLoop(geos2.prims);
+    auto pixels = camera.randerLoop(geos2.prims);
+    
+    outputPic("image", PIC_FORMAT::QOI, pixels);
 
     timeInfo(globalTimeStart);
     return 0;
-}
-
-void timeInfo(clock_t globalTimeStart) {
-    clock_t globalTimeEnd = clock();
-    clock_t seconds{ globalTimeEnd - globalTimeStart };
-    std::cout << "\nTotal time spending: "
-        << seconds / 60 / 1000 << "m "
-        << seconds / 1000 % 60 + (seconds % 1000 / 1000.0) << "s.\n\n";
 }
