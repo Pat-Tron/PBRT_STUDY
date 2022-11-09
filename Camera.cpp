@@ -50,16 +50,19 @@ Color Camera::render(const Ray &ray, const BVH &bvh) const {
     static int depth{ 0 };
     if (bvh.hit(ray, 0.0000001, 1e10, rec)) {
         Color albedo{ rec.mat->texture->v(rec.uv, rec.p) };
-        if (depth < maxDepth) {
+        if (rec.mat->LIGHT) {
+            depth = 0;
+            return albedo;
+        } else if (depth < maxDepth) {
             ++depth;
             return render(rec.mat->scatter(ray, rec), bvh) * albedo * rec.mat->reflectance;
         } else {
             depth = 0;
-            return albedo;
+            return Color();
         }
     } else {
         depth = 0;
-        return background(ray, up);
+        return background(ray);
     }
 }
 
@@ -90,6 +93,7 @@ const std::vector<std::vector<Color>> &Camera::randerLoop(const std::vector<prim
             }
 
             pixels[row][col] /= antialiasing * antialiasing;
+            pixels[row][col].clamp();
         }
     }
     std::cout << "\nRendering finished" << std::endl;

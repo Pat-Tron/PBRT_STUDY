@@ -7,14 +7,15 @@
 int main() {
     clock_t globalTimeStart = clock();
 
-    Camera camera(P1K, 0.5);
+    Camera camera(P1K);
     camera.position = Vec3(20, 4.5, -2);
     camera.focal = 3.0;
-    camera.antialiasing = 5;
-    camera.maxDepth = 5;
-    camera.aperture = 0.2;
+    camera.antialiasing = 30;
+    camera.maxDepth = 20;
+    //camera.aperture = 0.2;
     camera.defocusScale = 0.9;
     camera.faceAt = Vec3(0.0, 0.8, 0.0);
+    camera.dim = 1.0;
     //camera.motionBlur = true;
     
     Camera cameraTest(P1K, 0.5);
@@ -34,14 +35,17 @@ int main() {
         PrimBall(Metal(ORANGE),             0.4, Vec3(0.8, 0.4, -2.7)) +
         RandomBalls(50, 0.2, ground);
 
+    // Texture
     CheckerTexture checker(ConstantTexture(PURPLE), ConstantTexture(YELLOW), 0.5);
+    ImageTexture Earth("resource/earthTexture");
     PerlinNoise noise(0.5, true, 5);
     MarbleNoise marble(2.0, PerlinNoise(1.0, false, 5), 0.5);
-    ImageTexture Earth("resource/earthTexture");
 
-    auto ground2 = Square(Metal(Earth), 7);
-    GeometryContainer geos2 = GeometryContainer() + ground2 +
-        PrimBall(Lambertian(Earth), 1.2, Vec3(0, 1.2, 0));
+    auto ground2 = Square(Lambertian(Earth), 7);
+    GeometryContainer geos2 = GeometryContainer() +
+        ground2 +
+        PrimBall(Lambertian(Earth), 1.2, Vec3(0, 1.2, 0)) +
+        Square(DiffuseLight(ConstantTexture(100.0)), 0.5, Vec3(0, 2, -2));
     
     //auto pixels = cameraTest.randerLoop(geos2.prims);
     auto pixels = camera.randerLoop(geos2.prims);

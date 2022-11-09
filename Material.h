@@ -15,11 +15,13 @@ struct HitRec {
 
 struct Material {
     double reflectance{ 1.0 };
+    bool LIGHT{ false };
     std::shared_ptr<Texture> texture;
 
     Material() = default;
-    Material(std::shared_ptr<Texture> tp) : texture(tp) {}
-    Material(const Color &a = 0xFFFFFF) : texture(std::make_shared<ConstantTexture>(a)) {}
+    Material(std::shared_ptr<Texture> tp, double r = 1.0) : texture(tp), reflectance(r) {}
+    Material(const Color &a = 0xFFFFFF, double r = 1.0) :
+        texture(std::make_shared<ConstantTexture>(a)), reflectance(r) {}
     Vec3 reflect(const Vec3 &in, const Vec3 &normal) const { return in - 2 * (in * normal) * normal; }
     Vec3 randomSampleInHemiSphere(const Vec3 &normal, bool uniform = true, double range = 1.0) const;
     virtual Ray scatter(const Ray &rayIn, const HitRec &rec) const = 0;
@@ -69,4 +71,11 @@ private:
     double criticalAngle{ asin(1.0 / 1.44) };  // ¡ŸΩÁΩ«
     double schlick(double cosine) const;
     Vec3 refract(const Vec3 &dirIn, const Vec3 &normal) const;
+};
+
+struct DiffuseLight : public Material {
+    DiffuseLight() = default;
+    DiffuseLight(std::shared_ptr<Texture> tp) : Material(tp, 0.0) { Material::LIGHT = true; }
+    virtual Ray scatter(const Ray &rayIn, const HitRec &rec) const override { return Ray(); }
+    operator std::shared_ptr<Material>() { return std::make_shared<DiffuseLight>(*this); }
 };

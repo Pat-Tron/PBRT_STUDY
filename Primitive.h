@@ -6,15 +6,6 @@
 #include "Material.h"
 #include "AABB.h"
 
-
-inline Color background(const Ray &ray, const Vec3 &up) {
-    double c{ (ray.direction.normalized() * up * up).y };
-    double bandwidth{ 0.02 };
-    c = c < -bandwidth ? -1.0 : (c < bandwidth ? c / bandwidth : 1.0);
-    c = c * 0.5 + 0.5;
-    return c * Color(0xBBBBFF) + (1.0 - c) * Color(0xffac9b);
-}
-
 struct Primitive {
     static double timeStart, timeEnd;
     static bool motionBlur;

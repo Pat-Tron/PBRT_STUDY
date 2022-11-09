@@ -32,10 +32,18 @@ struct Color {
     //}
     int d2i(const double &channel) const { return static_cast<int>(255.99 * channel); }
     char d2c(const double &channel) const { return static_cast<char>(d2i(channel)); }
+    Color &clamp();
 
     friend std::ostream &operator<<(std::ostream &os, const Color &c);
     friend Color operator*(const double &n, const Color &c) { return c * n; }
 };
+
+inline Color &Color::clamp() {
+    R = R <= 1.0 ? R : 1.0;
+    G = G <= 1.0 ? G : 1.0;
+    B = B <= 1.0 ? B : 1.0;
+    return *this;
+}
 
 inline std::ostream &operator<<(std::ostream &os, const Color &c) {
     os << c.d2i(c.R) << ' ' << c.d2i(c.G) << ' ' << c.d2i(c.B) << std::endl;
