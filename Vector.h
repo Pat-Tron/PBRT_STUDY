@@ -30,7 +30,7 @@ struct Vec3 {
 
     double operator[](int n) { return n == 0 ? x : (n == 1 ? y : z); }
     Vec3 &operator=(const Vec3 &vec) { x = vec.x; y = vec.y; z = vec.z; return *this; }
-    Vec3 operator^(const Vec3 &vec) {
+    Vec3 operator^(const Vec3 &vec) const {
         // Cross
         return Vec3(y * vec.z - z * vec.y, z * vec.x - x * vec.z, x * vec.y - y * vec.x);
     }

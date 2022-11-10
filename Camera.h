@@ -48,7 +48,7 @@ struct Camera {
     std::vector<std::vector<Color>> pixels;
 
     Camera() = default;
-    Camera(int w, int h) : resWidth(w), resHeight(h),
+    Camera(int w, int h, double zoom = 1.0) : resWidth(w * zoom), resHeight(h * zoom),
         pixels(resHeight, std::vector<Color>(resWidth)) {}
     Camera(PRESET prst, double zoom = 1.0) :
         resWidth(static_cast<int>(presets[prst].width * zoom)),

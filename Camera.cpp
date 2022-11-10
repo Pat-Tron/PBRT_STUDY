@@ -1,5 +1,6 @@
 #include "Camera.h"
 #include "utility.h"
+#include <omp.h>
 
 void Camera::initialization() {
     // Right-hand coordinate system
@@ -52,7 +53,7 @@ Color Camera::render(const Ray &ray, const BVH &bvh) const {
         Color albedo{ rec.mat->texture->v(rec.uv, rec.p) };
         if (rec.mat->LIGHT) {
             depth = 0;
-            return albedo;
+            return albedo; 
         } else if (depth < maxDepth) {
             ++depth;
             return render(rec.mat->scatter(ray, rec), bvh) * albedo * rec.mat->reflectance;
@@ -80,21 +81,25 @@ const std::vector<std::vector<Color>> &Camera::randerLoop(const std::vector<prim
     double uStep{ 1.0 / resWidth / antialiasing };
     double vStep{ 1.0 / resHeight / antialiasing };
 
+    Color result;
+    omp_set_num_threads(15);
+#pragma omp parallel for schedule(dynamic, 1) private(result)       // OpenMP
     for (int row{ 0 }; row < resHeight; ++row) {
-        std::cout << "\rRendering ROW " << row + 1 << " of " << resHeight << " .";
+        std::cout << "Rendering ROW " << row + 1 << " of " << resHeight
+            << " . Thread: " << omp_get_thread_num() << std::endl;
         for (int col{ 0 }; col < resWidth; ++col) {
             double u{ 1.0 * col / resWidth };
             double v{ 1.0 * row / resHeight };
 
+            result = Color();
             for (int ui{ 0 }; ui < antialiasing; ++ui) {
                 for (int vi{ 0 }; vi < antialiasing; ++vi) {
                     Ray r = getRay(u + ui * uStep, v + vi * vStep);
-                    pixels[row][col] += render(r, bvh);
+                    result += render(r, bvh);
                 }
             }
 
-            pixels[row][col] /= antialiasing * antialiasing;
-            pixels[row][col].clamp();
+            pixels[row][col] = (result / antialiasing / antialiasing).clamp();
         }
     }
     std::cout << "\nRendering finished" << std::endl;

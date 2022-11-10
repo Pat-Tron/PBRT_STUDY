@@ -11,9 +11,6 @@ bool Sphere::hit(const Ray &ray, double tMin, double tMax, HitRec &rec) const {
     if (moving) actualCenter = center + velocity * ray.time;
     else actualCenter = center;
 
-    
-    
-
     /*
         p(t): point at Ray of parameter "t"
             -> p(t) = o + td
@@ -163,7 +160,7 @@ void BVH::printSelf() const {
     static int depth{ 0 };
 
     for (int i = 0; i < depth; ++i) std::cout << "   ";
-    if (std::string(typeid(*left).name()) != std::string("struct BVH")) {
+    if (typeid(*left) != typeid(BVH)) {
         std::cout << "L: " << left << ' ';
         left->printSelf();
         std::cout << std::endl;
@@ -176,7 +173,7 @@ void BVH::printSelf() const {
 
 
     for (int i = 0; i < depth; ++i) std::cout << "   ";
-    if (std::string(typeid(*right).name()) != std::string("struct BVH")) {
+    if (typeid(*left) != typeid(BVH)) {
         std::cout << "R: " << right << ' ';
         right->printSelf();
         std::cout << std::endl;

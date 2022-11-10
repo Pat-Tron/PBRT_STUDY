@@ -45,7 +45,7 @@ struct Sphere : public Primitive {
         AABB abT1 = AABB(centerT1 - Vec3(radius), centerT1 + Vec3(radius));
         box = abT0 + abT1;
     }
-    virtual void printSelf() const override { std::cout << "Sphere"; }
+    virtual void printSelf() const override { std::cout << "Sphere " << typeid(*mat).name(); }
     virtual Vec2 uv(const Vec3 &p) const override {
         double phi{ atan2(p.z, p.x) };
         double theta{ asin(p.y) };
@@ -78,7 +78,7 @@ struct Triangle : public Primitive {
     }
     bool hit(const Ray &ray, double tMin, double tMax, HitRec &rec) const override;
     void makeAABB() override { box = AABB(minVec3(minVec3(A, B), C), maxVec3(maxVec3(A, B), C)); }
-    virtual void printSelf() const override { std::cout << "Triangle"; }
+    virtual void printSelf() const override { std::cout << "Triangle " << typeid(*mat).name(); }
     virtual Vec2 uv(const Vec3 &p) const override {
         // p: Centrobaric Coordinate
         return uvA * p.x + uvB * p.y +uvC * p.z;

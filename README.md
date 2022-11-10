@@ -1,5 +1,8 @@
 # pbrt
 
+## cornellbox_and_rectangles_20_20_42m_15thread
+![](milestones/cornellbox_and_rectangles_20_20_42m_15thread.png)
+
 ## uvmappingAndLight_antialiasing30_depth20_52m
 ![](milestones/uvmappingAndLight_antialiasing30_depth20_52m.png)
 

@@ -29,12 +29,15 @@ struct Material {
     Vec3 reflect(const Vec3 &in, const Vec3 &normal) const { return in - 2 * (in * normal) * normal; }
     Vec3 randomSampleInHemiSphere(const Vec3 &normal, bool uniform = true, double range = 1.0) const;
     virtual Ray scatter(const Ray &rayIn, const HitRec &rec) const = 0;
+
+private:
+    const Vec3 up{ 0.0, 1.0, 0.0 };
 };
 
 struct Lambertian : public Material {
     Lambertian() = default;
     template <typename TextureType>
-    Lambertian(const TextureType &t) : Material(t) {}
+    Lambertian(const TextureType &t, double r = 1.0) : Material(t, r) {}
     virtual Ray scatter(const Ray &rayIn, const HitRec &rec) const override {
         return Ray(rec.p, randomSampleInHemiSphere(rec.normal), rayIn.time);
     }
@@ -45,7 +48,7 @@ struct Metal : public Material {
 
     Metal() = default;
     template <typename TextureType>
-    Metal(const TextureType &t, double f = 0.0) : Material(t), fuzz(f) {}
+    Metal(const TextureType &t, double f = 0.0, double r = 1.0) : Material(t, r), fuzz(f) {}
 
     virtual Ray scatter(const Ray &rayIn, const HitRec &rec) const override {
         Vec3 reflected{ reflect(rayIn.direction.normalized(), rec.normal)};
@@ -59,8 +62,8 @@ struct Dielectric : public Material {
     double IOR{ 1.44 }, IORR{ 1.0 / 1.44 };  // Reciprocal of IOR
     Dielectric() = default;
     template <typename TextureType>
-    Dielectric(const TextureType &t, double ior = 1.44) :
-        Material(t), IOR(ior), IORR(1.0 / ior), criticalAngle(asin(1.0 / IOR)) {}
+    Dielectric(const TextureType &t, double ior = 1.44, double r = 1.0) :
+        Material(t, r), IOR(ior), IORR(1.0 / ior), criticalAngle(asin(1.0 / IOR)) {}
 
     virtual Ray scatter(const Ray &rayIn, const HitRec &rec) const override {
         return Ray(rec.p, refract(rayIn.direction.normalized(), rec.normal), rayIn.time);

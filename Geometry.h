@@ -39,11 +39,30 @@ struct Square : public Geometry {
     }
 };
 
+struct Cuboid : public Geometry {
+    // Default bottom center at: (0, 0, 0)
+    double xLen, zLen, height;
+    Cuboid() = default;
+    template <typename MaterialType = Lambertian>
+    Cuboid(const MaterialType &mat, double xl, double h = 0., double zl = 0.) :
+        xLen(xl), zLen(zl ? zl : xl), height(h ? h : xl) {
+        using TF = Transformation;
+        Geometry container = Geometry() +
+            Square(mat, xLen, zLen) * TF(TF::RX, 180) +                                                 // bottom
+            Square(mat, xLen, zLen) * TF(TF::T, 0, height, 0) +                                         // up
+            Square(mat, xLen, height) * TF(TF::RX,  90) * TF(TF::T, 0, height * 0.5, zLen *  0.5) +     // front
+            Square(mat, xLen, height) * TF(TF::RX, -90) * TF(TF::T, 0, height * 0.5, zLen * -0.5) +     // back
+            Square(mat, height, zLen) * TF(TF::RZ,  90) * TF(TF::T, xLen * -0.5, height * 0.5, 0) +     // left
+            Square(mat, height, zLen) * TF(TF::RZ, -90) * TF(TF::T, xLen *  0.5, height * 0.5, 0);      // right
+        prims = container.prims;
+    }
+};
+
 struct PrimBall : public Geometry {
     PrimBall() = default;
     template <typename MaterialType>
-    PrimBall(const MaterialType &mat, double r, Vec3 c, Vec3 v = Vec3()) {
-        prims.push_back(std::make_shared<Sphere>(Sphere(r, c, mat, v)));
+    PrimBall(const MaterialType &mat, double r, Vec3 v = Vec3()) {
+        prims.push_back(std::make_shared<Sphere>(Sphere(r, mat, v)));
     }
 };
 

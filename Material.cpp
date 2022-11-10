@@ -6,14 +6,15 @@ Vec3 Material::randomSampleInHemiSphere(const Vec3 &normal, bool uniform, double
     float theta = (uniform ? acos(1.0 - rand01()) : rand01() * PI * 0.5) * range;
     Vec3 pos{ sin(theta) * cos(phi), cos(theta), sin(theta) * sin(phi) };
 
-    // quaternion rotation
-    Vec3 up{ 0.0, 1.0, 0.0 };
+    // When no need to rotate
     if ((normal - up).length() < 0.000001) return pos;
+    // When rotate angle equals to 180
+    if ((normal - up).length() > 1.999999) return -pos;
 
-    double angle{ acos(normal * up) };
+    // quaternion rotation
     Vec3 axis{ (up ^ normal).normalized() };
-    double c{ cos(angle) };
-    return pos * c + axis * (1 - c) * (axis * pos) + (axis ^ pos) * sin(angle);
+    double c{ normal * up }, s{ 1.0 - c * c}; // cos, sin
+    return pos * c + axis * (1 - c) * (axis * pos) + (axis ^ pos) * s;
 }
 
 double Dielectric::schlick(double cosine) const {
