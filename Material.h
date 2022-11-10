@@ -19,9 +19,13 @@ struct Material {
     std::shared_ptr<Texture> texture;
 
     Material() = default;
-    Material(std::shared_ptr<Texture> tp, double r = 1.0) : texture(tp), reflectance(r) {}
-    Material(const Color &a = 0xFFFFFF, double r = 1.0) :
-        texture(std::make_shared<ConstantTexture>(a)), reflectance(r) {}
+    Material(const PALETTE &p, double r = 1.0) :
+        texture(std::make_shared<ConstantTexture>(ConstantTexture(p))), reflectance(r) {}
+    Material(const Color &c, double r = 1.0) :
+        texture(std::make_shared<ConstantTexture>(ConstantTexture(c))), reflectance(r) {}
+    template <typename TextureType>
+    Material(const TextureType &t, double r = 1.0) :
+        texture(std::make_shared<TextureType>(t)), reflectance(r) {}
     Vec3 reflect(const Vec3 &in, const Vec3 &normal) const { return in - 2 * (in * normal) * normal; }
     Vec3 randomSampleInHemiSphere(const Vec3 &normal, bool uniform = true, double range = 1.0) const;
     virtual Ray scatter(const Ray &rayIn, const HitRec &rec) const = 0;
@@ -29,43 +33,38 @@ struct Material {
 
 struct Lambertian : public Material {
     Lambertian() = default;
-    Lambertian(const Color &a) : Material(a) {}
-    Lambertian(std::shared_ptr<Texture> tp) : Material(tp) {}
-
+    template <typename TextureType>
+    Lambertian(const TextureType &t) : Material(t) {}
     virtual Ray scatter(const Ray &rayIn, const HitRec &rec) const override {
         return Ray(rec.p, randomSampleInHemiSphere(rec.normal), rayIn.time);
     }
-    operator std::shared_ptr<Material>() { return std::make_shared<Lambertian>(*this); }
 };
 
 struct Metal : public Material {
     double fuzz{ 0.0 };
 
     Metal() = default;
-    Metal(const Color &a, double f = 0.0) : Material(a), fuzz(f) {}
-    Metal(std::shared_ptr<Texture> tp, double f = 0.0) : Material(tp), fuzz(f) {}
+    template <typename TextureType>
+    Metal(const TextureType &t, double f = 0.0) : Material(t), fuzz(f) {}
 
     virtual Ray scatter(const Ray &rayIn, const HitRec &rec) const override {
         Vec3 reflected{ reflect(rayIn.direction.normalized(), rec.normal)};
         if (fuzz == 0.0) return Ray(rec.p, reflected, rayIn.time);
         else return Ray(rec.p, randomSampleInHemiSphere(reflected, false, fuzz), rayIn.time);
     }
-    operator std::shared_ptr<Material>() { return std::make_shared<Metal>(*this); }
 };
 
 struct Dielectric : public Material {
     // GLASS, Index of Refraction
     double IOR{ 1.44 }, IORR{ 1.0 / 1.44 };  // Reciprocal of IOR
     Dielectric() = default;
-    Dielectric(std::shared_ptr<Texture> tp, double ior = 1.44) :
-        Material(tp), IOR(ior), IORR(1.0 / ior), criticalAngle(asin(1.0 / IOR)) {}
-    Dielectric(const Color &a, double ior = 1.44) :
-        Material(a), IOR(ior), IORR(1.0 / ior), criticalAngle(asin(1.0 / IOR)) {}
+    template <typename TextureType>
+    Dielectric(const TextureType &t, double ior = 1.44) :
+        Material(t), IOR(ior), IORR(1.0 / ior), criticalAngle(asin(1.0 / IOR)) {}
 
     virtual Ray scatter(const Ray &rayIn, const HitRec &rec) const override {
         return Ray(rec.p, refract(rayIn.direction.normalized(), rec.normal), rayIn.time);
     }
-    operator std::shared_ptr<Material>() { return std::make_shared<Dielectric>(*this); }
 
 private:
     double criticalAngle{ asin(1.0 / 1.44) };  // ¡ŸΩÁΩ«
@@ -75,7 +74,7 @@ private:
 
 struct DiffuseLight : public Material {
     DiffuseLight() = default;
-    DiffuseLight(std::shared_ptr<Texture> tp) : Material(tp, 0.0) { Material::LIGHT = true; }
+    template <typename TextureType>
+    DiffuseLight(const TextureType &t) : Material(t, 0.0) { Material::LIGHT = true; }
     virtual Ray scatter(const Ray &rayIn, const HitRec &rec) const override { return Ray(); }
-    operator std::shared_ptr<Material>() { return std::make_shared<DiffuseLight>(*this); }
 };

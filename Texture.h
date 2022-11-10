@@ -11,8 +11,7 @@ struct Texture {
     Vec3 offset;
     Texture() = default;
     Texture(double s, Vec3 o = Vec3()) : scale(1.0 / s) , offset(o) {}
-    // value
-    virtual Color v(const Vec2 &uv, const Vec3 &p) const = 0;
+    virtual Color v(const Vec2 &uv, const Vec3 &p) const = 0;  // value
 };
 
 struct ConstantTexture : public Texture {
@@ -21,7 +20,6 @@ struct ConstantTexture : public Texture {
     ConstantTexture() = default;
     ConstantTexture(Color a) : albedo(a) {}
     virtual Color v(const Vec2 &uv, const Vec3 &p) const override { return albedo; }
-    operator std::shared_ptr<Texture>() { return std::make_shared<ConstantTexture>(*this); }
 };
 
 struct CheckerTexture : public Texture {
@@ -37,7 +35,6 @@ struct CheckerTexture : public Texture {
         if (xOdd ^ yOdd ^ zOdd) return odd->v(uv, p);
         else return even->v(uv, p);
     }
-    operator std::shared_ptr<Texture>() { return std::make_shared<CheckerTexture>(*this); }
 };
 
 struct PerlinNoise : public Texture {
@@ -72,7 +69,6 @@ struct PerlinNoise : public Texture {
         std::shuffle(permutationZ.begin(), permutationZ.end(), URGB3);
     }
     virtual Color v(const Vec2 &uv, const Vec3 &p) const override;
-    operator std::shared_ptr<Texture>() { return std::make_shared<PerlinNoise>(*this); }
 
 private:
     Vec3 randomGradiant(const Vec3 &p) const;
@@ -116,7 +112,6 @@ struct MarbleNoise : public Texture {
     virtual Color v(const Vec2 &uv, const Vec3 &p) const override {
         return Color(sin(scale * p.z + amplitude * noise->v(uv, p).R) * 0.5 + 0.5);
     }
-    operator std::shared_ptr<Texture>() { return std::make_shared<MarbleNoise>(*this); }
 };
 
 struct ImageTexture : public Texture {
@@ -133,5 +128,4 @@ struct ImageTexture : public Texture {
     virtual Color v(const Vec2 &uv, const Vec3 &p) const override {
         return pixelData[uv.v * height][uv.u * width];
     }
-    operator std::shared_ptr<Texture>() { return std::make_shared<ImageTexture>(*this); }
 };

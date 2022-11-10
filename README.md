@@ -1,5 +1,8 @@
 # pbrt
 
+## uvmappingAndLight_antialiasing30_depth20_52m
+![](milestones/uvmappingAndLight_antialiasing30_depth20_52m.png)
+
 ## motionBlur_1K_BVH_HalfHour
 ![](milestones/motionBlur_1K_BVH_HalfHour.png)
 

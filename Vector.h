@@ -2,6 +2,7 @@
 #include <cmath>
 #include <iostream>
 #include <array>
+#include "Transformation.h"
 
 struct Vec3 {
     double x{ 0.0 }, y{ 0.0 }, z{ 0.0 };
@@ -32,6 +33,15 @@ struct Vec3 {
     Vec3 operator^(const Vec3 &vec) {
         // Cross
         return Vec3(y * vec.z - z * vec.y, z * vec.x - x * vec.z, x * vec.y - y * vec.x);
+    }
+    Vec3 &operator*=(const Transformation &trans) {
+        // Actually, it is LEFT multiplied by trans matrix, not right.
+        auto &a = trans.components;
+        double nx = a[0] * x + a[1] * y + a[2] * z + a[3];
+        double ny = a[4] * x + a[5] * y + a[6] * z + a[7];
+        double nz = a[8] * x + a[9] * y + a[10] * z + a[11];
+        x = nx; y = ny; z = nz;
+        return *this;
     }
 
     friend std::ostream &operator<<(std::ostream &os, const Vec3 &vec);

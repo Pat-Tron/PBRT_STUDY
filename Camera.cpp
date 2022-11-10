@@ -70,6 +70,7 @@ const std::vector<std::vector<Color>> &Camera::randerLoop(const std::vector<prim
     initialization();
 
     std::vector<primPointer> prims{ constPrims };
+    for (auto primp : prims) primp->makeAABB();
     BVH bvh{ prims, prims.begin(), prims.end()};
     //std::cout << "BVH tree:\n" << std::endl;
     //bvh.printSelf();

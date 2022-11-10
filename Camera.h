@@ -39,6 +39,7 @@ struct Camera {
     double timeStart{ 0.0 }, timeEnd{ 1.0 / FPS }, timeIntervel{ 0.0 };
 
     // BG
+    bool NO_BG{ false };
     Color BGUp{ 0xBBBBFF }, BGDown{ 0xffac9b };
     double bandwidth{ 0.02 };
     double dim{ 1.0 };
@@ -67,6 +68,7 @@ private:
     Color render(const Ray &ray, const BVH &bvh) const;
     Ray getRay(double u, double v);
     Color background(const Ray &ray) const {
+        if (NO_BG) return Color();
         double c{ (ray.direction.normalized() * up * up).y };
         c = c < -bandwidth ? -1.0 : (c < bandwidth ? c / bandwidth : 1.0);
         c = c * 0.5 + 0.5;
