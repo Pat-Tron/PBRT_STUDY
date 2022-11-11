@@ -28,6 +28,14 @@ inline double rand01() {
     return distr(generator);
 }
 
+inline double rand11() {
+    //static std::random_device rd;
+    //static std::default_random_engine generator(rd());
+    static std::default_random_engine generator;
+    static std::uniform_real_distribution<double> distr(0.0001, 1.0);
+    return distr(generator);
+}
+
 inline void timeInfo(clock_t globalTimeStart) {
     clock_t globalTimeEnd = clock();
     clock_t seconds{ globalTimeEnd - globalTimeStart };

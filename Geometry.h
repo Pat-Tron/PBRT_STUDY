@@ -100,3 +100,11 @@ struct RandomBalls : public Geometry {
         }
     }
 };
+
+struct VolumeGeo : public Geometry {
+    VolumeGeo() = default;
+    template <typename TextureType = ConstantTexture>
+    VolumeGeo(double x, double z, double y, double d = 1.0, const TextureType &t = ConstantTexture(WHITE)) {
+        prims.push_back(std::make_shared<Volume>(Volume(x, z, y, d, t)));
+    }
+};

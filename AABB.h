@@ -1,5 +1,6 @@
 #pragma once
 #include "Ray.h"
+#include <tuple>
 
 struct AABB {
     // Acceleration algorithm: Axis-Aligned Bounding Box
@@ -7,21 +8,22 @@ struct AABB {
     Vec3 maxBound{ -INFINITY, -INFINITY, -INFINITY };
     Vec3 center;
     double area{ 0.0 };
-
-    static double padding;
+    double padding{ 0.00001 };
 
     AABB() = default;
-    AABB(const Vec3 &min, const Vec3 &max);
+    AABB(const Vec3 &min, const Vec3 &max, double pad = 0.00001);
     bool hit(const Ray &ray, double tMin, double tMax) const;
+    std::tuple<double, double> hit(const Ray &ray) const;
     AABB operator+(const AABB &b) const;
     AABB &operator+=(const AABB &b);
-    void expand(double p) { minBound -= Vec3(p); maxBound += Vec3(p); }
+    void expand() { minBound -= Vec3(padding); maxBound += Vec3(padding); }
     int longestAxis() const;
     friend std::ostream &operator<<(std::ostream &os, const AABB &ab);
 };
 
-inline AABB::AABB(const Vec3 &min, const Vec3 &max) : minBound(min), maxBound(max) {
-    expand(padding);
+inline AABB::AABB(const Vec3 &min, const Vec3 &max, double pad) :
+    minBound(min), maxBound(max), padding(pad) {
+    expand();
     center = (minBound + maxBound) * 0.5;
     // half area
     Vec3 len{ maxBound - minBound };

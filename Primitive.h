@@ -17,7 +17,7 @@ struct Primitive {
     AABB box;
     Primitive() = default;
     template <typename MaterialType>
-    Primitive(const MaterialType &m, Vec3 c, Vec3 v = Vec3()) :
+    Primitive(const MaterialType &m, Vec3 c = Vec3(), Vec3 v = Vec3()) :
         mat(std::make_shared< MaterialType>(m)), centroid(c), velocity(v), moving(v.length()) { moving = moving && motionBlur; }
     virtual bool hit(const Ray &ray, double tMin, double tMax, HitRec &rec) const = 0;
     virtual void makeAABB() = 0;
@@ -27,6 +27,20 @@ struct Primitive {
 };
 
 using primPointer = std::shared_ptr<Primitive>;
+
+struct BVH : public Primitive {
+    // Bounding Volume Hierarchy, container node
+    using itrt = std::vector<primPointer>::iterator;
+    std::shared_ptr<Primitive> left, right;
+    BVH() = default;
+    BVH(std::vector<primPointer> &prims, itrt start, itrt end);
+
+    bool hit(const Ray &ray, double tMin, double tMax, HitRec &rec) const override;
+    void makeAABB() override { box = AABB(); }
+    virtual void printSelf() const override;
+    virtual Vec2 uv(const Vec3 &p) const override { return Vec2(); }
+    virtual void transform(const Transformation &trans) override {}
+};
 
 struct Sphere : public Primitive {
     double radius{ 1.0 };
@@ -88,16 +102,22 @@ struct Triangle : public Primitive {
     }
 };
 
-struct BVH : public Primitive {
-    // Bounding Volume Hierarchy, container node
-    using itrt = std::vector<primPointer>::iterator;
-    std::shared_ptr<Primitive> left, right;
-    BVH() = default;
-    BVH(std::vector<primPointer> &prims, itrt start, itrt end);
-
-    bool hit(const Ray &ray, double tMin, double tMax, HitRec &rec) const override;
-    void makeAABB() override { box = AABB(); }
-    virtual void printSelf() const override;
-    virtual Vec2 uv(const Vec3 &p) const override { return Vec2(); }
-    virtual void transform(const Transformation &trans) override {}
+struct Volume : public Primitive {
+    AABB volumnBoundary;
+    double density{ 1.0 };
+    
+    Volume() = default;
+    template <typename TextureType = ConstantTexture>
+    Volume(double x, double z, double y, double d = 1.0, const TextureType &t = ConstantTexture(WHITE)) :
+        Primitive(Isotropic(t)), density(d),
+        volumnBoundary({ Vec3(-x * 0.5, -y * 0.5, -z * 0.5), Vec3(x * 0.5, y * 0.5, z * 0.5), 0.0 }) {}
+    virtual bool hit(const Ray &ray, double tMin, double tMax, HitRec &rec) const override;
+    virtual void makeAABB() override { box = volumnBoundary; box.padding = 0.0001; box.expand(); };
+    virtual void printSelf() const override { std::cout << "Volume " << typeid(*mat).name(); }
+    virtual Vec2 uv(const Vec3 &p) const override { return Vec2(); };
+    virtual void transform(const Transformation &trans) override {
+        volumnBoundary.minBound *= trans;
+        volumnBoundary.maxBound *= trans;
+        centroid = (volumnBoundary.minBound + volumnBoundary.maxBound) * 0.5;
+    }
 };

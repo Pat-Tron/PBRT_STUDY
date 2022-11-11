@@ -12,8 +12,9 @@ Vec3 Material::randomSampleInHemiSphere(const Vec3 &normal, bool uniform, double
     if ((normal - up).length() > 1.999999) return -pos;
 
     // quaternion rotation
+    double c{ normal * up }, angle{ acos(c) };  // cos
     Vec3 axis{ (up ^ normal).normalized() };
-    double c{ normal * up }, s{ 1.0 - c * c}; // cos, sin
+    double s{ sin(angle) }; // sin
     return pos * c + axis * (1 - c) * (axis * pos) + (axis ^ pos) * s;
 }
 
