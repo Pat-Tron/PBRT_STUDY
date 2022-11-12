@@ -103,21 +103,26 @@ struct Triangle : public Primitive {
 };
 
 struct Volume : public Primitive {
-    AABB volumnBoundary;
+    AABB volumeBoundary;
+    Transformation tf, tfi, rot;
     double density{ 1.0 };
     
     Volume() = default;
     template <typename TextureType = ConstantTexture>
     Volume(double x, double z, double y, double d = 1.0, const TextureType &t = ConstantTexture(WHITE)) :
         Primitive(Isotropic(t)), density(d),
-        volumnBoundary({ Vec3(-x * 0.5, -y * 0.5, -z * 0.5), Vec3(x * 0.5, y * 0.5, z * 0.5), 0.0 }) {}
+        volumeBoundary({ Vec3(-x * 0.5, -y * 0.5, -z * 0.5), Vec3(x * 0.5, y * 0.5, z * 0.5), 0.0 }) {}
     virtual bool hit(const Ray &ray, double tMin, double tMax, HitRec &rec) const override;
-    virtual void makeAABB() override { box = volumnBoundary; box.padding = 0.0001; box.expand(); };
+    virtual void makeAABB() override { box = volumeBoundary * tf; }
     virtual void printSelf() const override { std::cout << "Volume " << typeid(*mat).name(); }
     virtual Vec2 uv(const Vec3 &p) const override { return Vec2(); };
     virtual void transform(const Transformation &trans) override {
-        volumnBoundary.minBound *= trans;
-        volumnBoundary.maxBound *= trans;
-        centroid = (volumnBoundary.minBound + volumnBoundary.maxBound) * 0.5;
+        tf = trans;
+        tfi = trans.inverted();
+        rot = tfi;
+        rot[3] = 0.0;
+        rot[7] = 0.0;
+        rot[11] = 0.0;
+        centroid *= trans;
     }
 };

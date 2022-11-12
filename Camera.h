@@ -65,7 +65,7 @@ private:
     Vec3 leftDownCorner, right, up;
     void initialization();
     Vec3 sampleInCircle();
-    Color render(const Ray &ray, const BVH &bvh) const;
+    Color render(const Ray &ray, const BVH &bvh, int depth = 0) const;
     Ray getRay(double u, double v);
     Color background(const Ray &ray) const {
         if (NO_BG) return Color();

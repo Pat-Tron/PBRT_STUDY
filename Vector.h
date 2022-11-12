@@ -30,19 +30,9 @@ struct Vec3 {
 
     double operator[](int n) { return n == 0 ? x : (n == 1 ? y : z); }
     Vec3 &operator=(const Vec3 &vec) { x = vec.x; y = vec.y; z = vec.z; return *this; }
-    Vec3 operator^(const Vec3 &vec) const {
-        // Cross
-        return Vec3(y * vec.z - z * vec.y, z * vec.x - x * vec.z, x * vec.y - y * vec.x);
-    }
-    Vec3 &operator*=(const Transformation &trans) {
-        // Actually, it is LEFT multiplied by trans matrix, not right.
-        auto &a = trans.components;
-        double nx = a[0] * x + a[1] * y + a[2] * z + a[3];
-        double ny = a[4] * x + a[5] * y + a[6] * z + a[7];
-        double nz = a[8] * x + a[9] * y + a[10] * z + a[11];
-        x = nx; y = ny; z = nz;
-        return *this;
-    }
+    Vec3 operator^(const Vec3 &vec) const;
+    Vec3 &operator*=(const Transformation &trans);
+    Vec3 operator*(const Transformation &trans) const;
 
     friend std::ostream &operator<<(std::ostream &os, const Vec3 &vec);
     friend Vec3 operator*(const double &n, const Vec3 &vec);
@@ -58,6 +48,31 @@ struct Vec3 {
     Vec3 reciprocal() const { return Vec3(1.0 / x, 1.0 / y, 1.0 / z); }
     Vec3 vecFloor() const { return Vec3(floor(x), floor(y), floor(z)); }
 };
+
+inline Vec3 Vec3::operator^(const Vec3 &vec) const {
+    // Cross
+    return Vec3(y * vec.z - z * vec.y, z * vec.x - x * vec.z, x * vec.y - y * vec.x);
+}
+
+inline Vec3 &Vec3::operator*=(const Transformation &trans) {
+    // Actually, it is LEFT multiplied by trans matrix, not right.
+    auto &a = trans.components;
+    double nx = a[0] * x + a[1] * y + a[2] * z + a[3];
+    double ny = a[4] * x + a[5] * y + a[6] * z + a[7];
+    double nz = a[8] * x + a[9] * y + a[10] * z + a[11];
+    x = nx; y = ny; z = nz;
+    return *this;
+}
+
+inline Vec3 Vec3::operator*(const Transformation &trans) const {
+    // Actually, it is LEFT multiplied by trans matrix, not right.
+    auto &a = trans.components;
+    return Vec3(
+        a[0] * x + a[1] * y + a[2] * z + a[3],
+        a[4] * x + a[5] * y + a[6] * z + a[7],
+        a[8] * x + a[9] * y + a[10] * z + a[11]
+    );
+}
 
 inline std::ostream &operator<<(std::ostream &os, const Vec3 &vec) {
     os << "( " << vec.x << ", " << vec.y << ", " << vec.z << " )";

@@ -186,7 +186,9 @@ void BVH::printSelf() const {
 }
 
 bool Volume::hit(const Ray &ray, double tMin, double tMax, HitRec &rec) const {
-    const std::tuple<double, double> &twoT{ volumnBoundary.hit(ray) };
+    Ray transRay(ray.origin * tfi, ray.direction * rot);
+
+    const std::tuple<double, double> &twoT{ volumeBoundary.hit(transRay) };
     double t0{ std::get<0>(twoT) }, t1{ std::get<1>(twoT) };
 
     if (t0 >= t1 || t1 < tMin || t0 > tMax) return false;
@@ -196,13 +198,12 @@ bool Volume::hit(const Ray &ray, double tMin, double tMax, HitRec &rec) const {
     if (t1 > tMax) t0 = tMax;
 
     // Distance between two hitting points. Absolute distance
-    double distance{ (t1 - t0) * ray.direction.length() };
+    double distance{ (t1 - t0) * transRay.direction.length() };
     // Where would we think the ray is hitting this volume. Also absolute distance.
     double hitDistance{ log(rand11()) / -density };
     if (hitDistance >= distance) return false;
-    //std::cout << t0 << ' ' << t1 << ' ' << ray.direction << '\n';
-    rec.t = t0 + hitDistance / ray.direction.length();
-    rec.p = ray.pointAtT(rec.t);
+    rec.t = t0 + hitDistance / transRay.direction.length();
+    rec.p = transRay.pointAtT(rec.t) * tf;
     rec.mat = mat;
     return true;
 }

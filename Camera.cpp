@@ -46,25 +46,16 @@ Ray Camera::getRay(double u, double v) {
     else return Ray(newP, target - newP);
 }
 
-Color Camera::render(const Ray &ray, const BVH &bvh) const {
+Color Camera::render(const Ray &ray, const BVH &bvh, int depth) const {
     HitRec rec;
-    static int depth{ 0 };
     if (bvh.hit(ray, 0.0000001, 1e10, rec)) {
         Color albedo{ rec.mat->texture->v(rec.uv, rec.p) };
-        if (rec.mat->LIGHT) {
-            depth = 0;
-            return albedo; 
-        } else if (depth < maxDepth) {
+        if (rec.mat->LIGHT) return albedo; 
+        else if (depth < maxDepth) {
             ++depth;
-            return render(rec.mat->scatter(ray, rec), bvh) * albedo * rec.mat->reflectance;
-        } else {
-            depth = 0;
-            return Color();
-        }
-    } else {
-        depth = 0;
-        return background(ray);
-    }
+            return render(rec.mat->scatter(ray, rec), bvh, depth) * albedo * rec.mat->reflectance;
+        } else return Color();
+    } else return background(ray);
 }
 
 const std::vector<std::vector<Color>> &Camera::randerLoop(const std::vector<primPointer> &constPrims) {
@@ -81,9 +72,9 @@ const std::vector<std::vector<Color>> &Camera::randerLoop(const std::vector<prim
     double uStep{ 1.0 / resWidth / antialiasing };
     double vStep{ 1.0 / resHeight / antialiasing };
 
-    Color result;
+    //Color result;
     omp_set_num_threads(15);
-#pragma omp parallel for schedule(dynamic, 1) private(result)       // OpenMP
+#pragma omp parallel for schedule(dynamic, 1) // OpenMP
     for (int row{ 0 }; row < resHeight; ++row) {
         std::cout << "Rendering ROW " << row + 1 << " of " << resHeight
             << " . Thread: " << omp_get_thread_num() << std::endl;
@@ -91,7 +82,7 @@ const std::vector<std::vector<Color>> &Camera::randerLoop(const std::vector<prim
             double u{ 1.0 * col / resWidth };
             double v{ 1.0 * row / resHeight };
 
-            result = Color();
+            Color result;
             for (int ui{ 0 }; ui < antialiasing; ++ui) {
                 for (int vi{ 0 }; vi < antialiasing; ++vi) {
                     Ray r = getRay(u + ui * uStep, v + vi * vStep);

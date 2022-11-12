@@ -16,6 +16,7 @@ struct AABB {
     std::tuple<double, double> hit(const Ray &ray) const;
     AABB operator+(const AABB &b) const;
     AABB &operator+=(const AABB &b);
+    AABB operator*(const Transformation &trans) const;
     void expand() { minBound -= Vec3(padding); maxBound += Vec3(padding); }
     int longestAxis() const;
     friend std::ostream &operator<<(std::ostream &os, const AABB &ab);

@@ -1,5 +1,8 @@
 # pbrt
 
+## volume_with_perlin_noise_30_20_15threads_85m
+![](milestones/volume_with_perlin_noise_30_20_15threads_85m.png)
+
 ## cornellbox_and_rectangles_20_20_42m_15thread
 ![](milestones/cornellbox_and_rectangles_20_20_42m_15thread.png)
 

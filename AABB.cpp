@@ -27,3 +27,38 @@ std::tuple<double, double> AABB::hit(const Ray &ray) const {
     if (!ray.zPositive) std::swap(t0z, t1z);
     return std::make_tuple(std::max(t0x, std::max(t0y, t0z)), std::min(t1x, std::min(t1y, t1z)));
 }
+
+AABB AABB::operator*(const Transformation &trans) const {
+    /*
+    Corner notation inside specific int lattice
+
+                      ¡ü y
+                     |
+                    |
+                   E--------F
+                 /|       /|
+               / |      / |
+             H--------G  |
+            |  A-----|--B--------¡ú x
+           | /      | /
+          |/       |/
+         D--------C
+       /
+     ¡ý z
+
+    */
+    Vec3 A = minBound, G = maxBound;
+    Vec3 B = Vec3(G.x, A.y, A.z) * trans;
+    Vec3 C = Vec3(G.x, A.y, G.z) * trans;
+    Vec3 D = Vec3(A.x, A.y, G.z) * trans;
+    Vec3 E = Vec3(A.x, G.y, A.z) * trans;
+    Vec3 F = Vec3(G.x, G.y, A.z) * trans;
+    Vec3 H = Vec3(A.x, G.y, G.z) * trans;
+    A *= trans;
+    G *= trans;
+    
+    return AABB(
+        minVec3(minVec3(minVec3(minVec3(minVec3(minVec3(minVec3(A, B), C), D), E), F), G), H),
+        maxVec3(maxVec3(maxVec3(maxVec3(maxVec3(maxVec3(maxVec3(A, B), C), D), E), F), G), H)
+    );
+}
