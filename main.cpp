@@ -25,15 +25,12 @@ int main() {
     using TF = Transformation;
     
     Geometry geos = Geometry() +
-        Square(Lambertian(WHITE, 0.9), 10.1) +
-        Square(Lambertian(WHITE, 0.9), 10.1) * (TF(TF::RX, 90) * TF(TF::T, 0, 5, -5)) +
-        Square(Lambertian(WHITE, 0.9), 20) * TF(TF::RX, 180) * TF(TF::T, 0, 10, 0) +
-        Square(Lambertian(GREEN, 0.9), 10.1) * TF(TF::RZ, -90) * TF(TF::T, -5, 5, 0) +
-        Square(Lambertian(RED, 0.9), 10.1) * TF(TF::RZ, 90) * TF(TF::T, 5, 5, 0) +
-        PrimBall(DiffuseLight(Color(9.0)), 20) * TF(TF::T, 0, 29.8, 0) +
-        VolumeGeo(3.0, 3.0, 8.0, 0.5, ORANGE) * (TF(TF::RY, 40) * TF(TF::T, -2, 4, -1.5)) +
-        VolumeGeo(4, 4, 4, 0.9, PerlinNoise(1.0, false, 5)) *
-            (TF(TF::RX, 30) * TF(TF::RY, 30) * TF(TF::T, 0, 3.5, 2));
+        PrimBall(Metal((Color(PURPLE) * 1.5).clamp(), 0.7), 3) * TF(TF::T, 0, 3, 0) +
+        PrimBall(DiffuseLight(Color(WHITE)  * 6), 1) * TF(TF::T, 0, 10, 0) +
+        PrimBall(DiffuseLight(Color(BLUE)   * 6), 1) * TF(TF::T, -4, 10, 0) +
+        PrimBall(DiffuseLight(Color(ORANGE) * 6), 1) * TF(TF::T, 4, 10, 0) +
+        Square(DiffuseLight(Color(GREEN)    * 2.5), 10) * TF(TF::T, 0, -5, 0) +
+        VolumeGeo(15.0, 15.0, 15.0, 0.1, WHITE) * TF(TF::T, 0, 5.5, 0);
 
     auto pixels = camera.randerLoop(geos.prims);
     

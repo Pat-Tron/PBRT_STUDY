@@ -1,5 +1,8 @@
 # pbrt
 
+## volume_interactive_with_multi-light
+![](milestones/volume_interactive_with_multi-light.png)
+
 ## volume_with_perlin_noise_30_20_15threads_85m
 ![](milestones/volume_with_perlin_noise_30_20_15threads_85m.png)
 
