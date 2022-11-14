@@ -1,5 +1,8 @@
 # pbrt
 
+## raytracingInOneWeekFinish_sortof
+![](milestones/raytracingInOneWeekFinish_sortof.png)
+
 ## volume_interactive_with_multi-light
 ![](milestones/volume_interactive_with_multi-light.png)
 

@@ -50,11 +50,13 @@ Color Camera::render(const Ray &ray, const BVH &bvh, int depth) const {
     HitRec rec;
     if (bvh.hit(ray, 0.0000001, 1e10, rec)) {
         Color albedo{ rec.mat->texture->v(rec.uv, rec.p) };
-        if (rec.mat->LIGHT) return albedo; 
+        if (rec.mat->LIGHT) {
+            if (rec.normal * ray.direction <= 0) return albedo;
+            else return Color();
+        }
         else if (depth < maxDepth) {
-            const auto &tmp = rec.mat->scatter(ray, rec);
-            const Ray &scattered{ std::get<0>(tmp) };
-            double PDF{ std::get<1>(tmp) };
+            double PDF;
+            Ray &&scattered{ rec.mat->scatter(ray, rec, PDF) };
             //return PDF * rec.mat->reflectance * (render(scattered, bvh, ++depth) * albedo);
             return rec.mat->reflectance * (render(scattered, bvh, ++depth) * albedo);
         } else return Color();
@@ -77,6 +79,7 @@ const std::vector<std::vector<Color>> &Camera::randerLoop(const std::vector<prim
 
     //Color result;
     omp_set_num_threads(15);
+
 #pragma omp parallel for schedule(dynamic, 1) // OpenMP
     for (int row{ 0 }; row < resHeight; ++row) {
         std::cout << "Rendering ROW " << row + 1 << " of " << resHeight

@@ -1,6 +1,6 @@
 #include "Material.h"
 
-std::tuple<Vec3, double> Material::randomSampleInHemiSphere(const Vec3 &normal, double range) const {
+Vec3 Material::randomSampleInHemiSphere(const Vec3 &normal, double &cosTheta, double range) const {
     // 单位半球面均匀撒点 https://zhuanlan.zhihu.com/p/340929847
 
     /*
@@ -15,27 +15,30 @@ std::tuple<Vec3, double> Material::randomSampleInHemiSphere(const Vec3 &normal, 
             (For theta is on the interval of [0, PI /2], sin(theta)>=0.)
     */
     double r0{ rand01() }, r1{ rand01() };
-    double phi{2.0 * PI * r0}, sinTheta{ sqrt((2.0 - r1) * r1) };
-    Vec3 pos{ cos(phi) * sinTheta, 1 - r1, sin(phi) * sinTheta };
+    cosTheta = 1.0 - r1;
+    double phi{2.0 * PI * r0}, sinTheta{ sqrt(1.0 - cosTheta * cosTheta) };
+    Vec3 pos{ cos(phi) * sinTheta, cosTheta, sin(phi) * sinTheta };
+
+    
 
     if (fabs(normal.x) < 0.00001 && fabs(normal.z) < 0.00001) {
         // When normal almost pointing up(0, 1, 0)
-        if (normal.y > 0.0) return std::make_tuple(pos, 1.0 - r1);
+        if (normal.y > 0.0) return pos;
         // When normal almost pointing down(0, -1, 0)
-        else return  std::make_tuple(-pos, 1.0 - r1);
+        else return  -pos;
     }
 
     // Coordinate transform
     //// NewY: normal
     //Vec3 newX{ (normal ^ Vec3(0.0, 1.0, 0.0)).normalized() };
     //Vec3 newZ{ (newX ^ normal).normalized() };
-    //return std::make_tuple(newX * pos.x + normal * pos.y + newZ * pos.z, 1.0 - r1);
+    //return newX * pos.x + normal * pos.y + newZ * pos.z;
 
     // Quaternion rotation. Faster than coordinate transform
     double c{ normal.y }, s{ sqrt(1.0 - c * c) };  // c: cos, normal * up(0, 1, 0), s: sin
     Vec3 axis{ normal.z, 0.0, - normal.x };  // up(0, 1, 0) ^ normal
     axis.normalize();
-    return std::make_tuple(pos * c + axis * (1 - c) * (axis * pos) + (axis ^ pos) * s, 1.0 - r1);
+    return pos * c + axis * (1 - c) * (axis * pos) + (axis ^ pos) * s;
 }
 
 double Dielectric::schlick(double cosine) const {
