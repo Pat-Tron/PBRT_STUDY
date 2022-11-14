@@ -1,21 +1,41 @@
 #include "Material.h"
 
-Vec3 Material::randomSampleInHemiSphere(const Vec3 &normal, bool uniform, double range) const {
+std::tuple<Vec3, double> Material::randomSampleInHemiSphere(const Vec3 &normal, double range) const {
     // 单位半球面均匀撒点 https://zhuanlan.zhihu.com/p/340929847
-    float phi = rand01() * 2.0 * PI;
-    float theta = (uniform ? acos(1.0 - rand01()) : rand01() * PI * 0.5) * range;
-    Vec3 pos{ sin(theta) * cos(phi), cos(theta), sin(theta) * sin(phi) };
 
-    // When no need to rotate
-    if ((normal - up).length() < 0.000001) return pos;
-    // When rotate angle equals to 180
-    if ((normal - up).length() > 1.999999) return -pos;
+    /*
+        r0 = rand01(), r1 = rand01(). r0,r1: [0,1)
+          phi = r0 * 2 * PI
+        theta = acos(1 - r1)
 
-    // quaternion rotation
-    double c{ normal * up }, angle{ acos(c) };  // cos
-    Vec3 axis{ (up ^ normal).normalized() };
-    double s{ sin(angle) }; // sin
-    return pos * c + axis * (1 - c) * (axis * pos) + (axis ^ pos) * s;
+        cos(phi) = cos(2*PI*r0)
+        sin(phi) = sin(2*PI*r0)
+        cos(theta) = 1 - r1
+        sin(theta) = sqrt(1 - cos^2(theta)) = sqrt(2*r1-r1*r1)
+            (For theta is on the interval of [0, PI /2], sin(theta)>=0.)
+    */
+    double r0{ rand01() }, r1{ rand01() };
+    double phi{2.0 * PI * r0}, sinTheta{ sqrt((2.0 - r1) * r1) };
+    Vec3 pos{ cos(phi) * sinTheta, 1 - r1, sin(phi) * sinTheta };
+
+    if (fabs(normal.x) < 0.00001 && fabs(normal.z) < 0.00001) {
+        // When normal almost pointing up(0, 1, 0)
+        if (normal.y > 0.0) return std::make_tuple(pos, 1.0 - r1);
+        // When normal almost pointing down(0, -1, 0)
+        else return  std::make_tuple(-pos, 1.0 - r1);
+    }
+
+    // Coordinate transform
+    //// NewY: normal
+    //Vec3 newX{ (normal ^ Vec3(0.0, 1.0, 0.0)).normalized() };
+    //Vec3 newZ{ (newX ^ normal).normalized() };
+    //return std::make_tuple(newX * pos.x + normal * pos.y + newZ * pos.z, 1.0 - r1);
+
+    // Quaternion rotation. Faster than coordinate transform
+    double c{ normal.y }, s{ sqrt(1.0 - c * c) };  // c: cos, normal * up(0, 1, 0), s: sin
+    Vec3 axis{ normal.z, 0.0, - normal.x };  // up(0, 1, 0) ^ normal
+    axis.normalize();
+    return std::make_tuple(pos * c + axis * (1 - c) * (axis * pos) + (axis ^ pos) * s, 1.0 - r1);
 }
 
 double Dielectric::schlick(double cosine) const {

@@ -52,8 +52,11 @@ Color Camera::render(const Ray &ray, const BVH &bvh, int depth) const {
         Color albedo{ rec.mat->texture->v(rec.uv, rec.p) };
         if (rec.mat->LIGHT) return albedo; 
         else if (depth < maxDepth) {
-            ++depth;
-            return render(rec.mat->scatter(ray, rec), bvh, depth) * albedo * rec.mat->reflectance;
+            const auto &tmp = rec.mat->scatter(ray, rec);
+            const Ray &scattered{ std::get<0>(tmp) };
+            double PDF{ std::get<1>(tmp) };
+            //return PDF * rec.mat->reflectance * (render(scattered, bvh, ++depth) * albedo);
+            return rec.mat->reflectance * (render(scattered, bvh, ++depth) * albedo);
         } else return Color();
     } else return background(ray);
 }
